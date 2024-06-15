@@ -4,6 +4,7 @@
 const { app, BrowserWindow, ipcMain, Menu } = require( "electron" );
 const isDev = require( "electron-is-dev" );
 const { autoUpdater } = require( "electron-updater" );
+const { exec, spawn } = require( "child_process" );
 
 /**
  * * Propiedades de AutoUpdater
@@ -91,7 +92,9 @@ createWindow = () => {
 /**
  * * Preparar la App
  */
-app.whenReady().then( () => createWindow() );
+app.whenReady().then( () => {
+    createWindow();
+});
 
 /**
  * * Acciones para cerrar la App en MacOs
@@ -103,6 +106,21 @@ app.on( "window-all-closed", () => {
 /**
  * * Comunicación entre procesos
  */
+
+ipcMain.on('test', (event, args) => {
+    const path = 'src/assets/scripts/test.ps1';
+    exec(`powershell.exe -ExecutionPolicy Bypass -Command "& { . '${path}' }"`, (error, stdout, stderr) => {
+        if (error) {
+            event.sender.send('test', error);
+            console.error(`exec error: ${error}`);
+            return;
+        }
+        // Output the function result
+        console.log(`Function output: ${stdout}`);
+        event.sender.send('test', stdout);
+    });
+});
+
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());
 //DESCARGAR ACTUALIZACION
