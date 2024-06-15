@@ -1,12 +1,54 @@
 {
-  "name": "admanagement",
-  "version": "0.0.0",
+  "build": {
+    "copyright": "Luis Tronilo dev ITSupport.",
+    "directories": {
+      "output": "release",
+      "buildResources": "dist"
+    },
+    "files": [
+      "**/*",
+      "dist/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico",
+      "publish": {
+        "provider": "github",
+        "owner": "tronilo53",
+        "repo": "ADManagement"
+      }
+    },
+    "asar": false,
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": false,
+      "removeDefaultUninstallWelcomePage": false,
+      "installerIcon": "build/installerIcon.ico",
+      "uninstallerIcon": "build/uninstallerIcon.ico",
+      "installerHeaderIcon": "build/installerHeaderIcon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "menuCategory": false,
+      "shortcutName": "ADManagement",
+      "runAfterFinish": false
+    }
+  },
+  "name": "ADManagement",
+  "version": "1.0.0",
+  "main": "main.js",
+  "license": "MIT",
+  "description": "ITSupport program for the management of AD",
+  "author": "Luis TM - ITSupport",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "electron .",
     "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "electron": "ng build && electron .",
+    "pub": "ng build && electron-builder -p always"
   },
   "private": true,
   "dependencies": {
@@ -18,7 +60,14 @@
     "@angular/platform-browser": "^18.0.0",
     "@angular/platform-browser-dynamic": "^18.0.0",
     "@angular/router": "^18.0.0",
+    "animate.css": "^4.1.1",
+    "bootstrap": "^5.3.3",
+    "electron-updater": "^5.3.0",
+    "jquery": "^3.7.1",
+    "material-symbols": "^0.20.0",
+    "popper.js": "^1.16.1",
     "rxjs": "~7.8.0",
+    "sweetalert2": "^11.11.1",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.3"
   },
@@ -27,6 +76,8 @@
     "@angular/cli": "^18.0.4",
     "@angular/compiler-cli": "^18.0.0",
     "@types/jasmine": "~5.1.0",
+    "electron": "^31.0.1",
+    "electron-is-dev": "^2.0.0",
     "jasmine-core": "~5.1.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",

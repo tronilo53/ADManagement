@@ -1,0 +1,17 @@
+.preload {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: var(--bs-warning);
+}
+.title {
+    font-family: 'Righteous';
+    text-align: center;
+    margin-top: 3rem;
+}
+.logo {
+    width: 20rem;
+}
+.spinner-grow {
+    margin: 0 5px;
+}
