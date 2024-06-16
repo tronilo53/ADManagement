@@ -24,13 +24,6 @@ function addUsers {
         }
     #>
     
-    Get-ADOrganizationalUnit -LDAPFilter '(name=*)' -SearchBase "OU=Usuarios Henry Schein SPAIN,OU=ES,DC=eu,DC=hsi,DC=local" -SearchScope Subtree | Select-Object Name, DistinguishedName |
-    ForEach-Object {
-        [PSCustomObject]@{
-            Name = $_.Name
-            DistinguishedName = $_.DistinguishedName
-        }
-    } | ConvertTo-Json
     
     <#for ($i = 0; $i -lt $ousRoot.Length; $i++) {
         $plus = $i + 1
@@ -95,4 +88,14 @@ function addUsers {
         }
     }#>
 }
-addUsers
+$get = {param([string]$pathOU,[int]$indent = 2)
+    $ous = Get-ADOrganizationalUnit -LDAPFilter '(name=*)' -SearchBase $pathOU -SearchScope OneLevel | Select-Object Name, DistinguishedName
+    foreach ($child in $ous) {
+      $tab = "-" * $indent
+      "|{0} {1}" -f $tab, $child.Name
+      &$get -pathOU $child.distinguishedname -indent ($indent+=2)
+      $indent-=2
+    }
+  }
+
+  (Get-ADDomain).Name;invoke-command $get -ArgumentList "OU=Usuarios Henry Schein SPAIN,OU=ES,DC=eu,DC=hsi,DC=local"
