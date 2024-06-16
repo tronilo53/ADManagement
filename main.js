@@ -37,8 +37,8 @@ createWindow = () => {
     //autoUpdater.checkForUpdates();
     appWin = new BrowserWindow(
         { 
-            width: 800, 
-            height: 670,
+            width: 950, 
+            height: 720,
             resizable: false,
             center: true, 
             webPreferences: { 
@@ -108,17 +108,17 @@ app.on( "window-all-closed", () => {
  * * Comunicación entre procesos
  */
 
-ipcMain.on('test', (event, args) => {
+ipcMain.on('getOus', (event, args) => {
     const path = 'src/assets/scripts/test.ps1';
     exec(`powershell.exe -ExecutionPolicy Bypass -Command "& { . '${path}' }"`, (error, stdout, stderr) => {
         if (error) {
-            event.sender.send('test', error);
+            event.sender.send('getOus', error);
             console.error(`exec error: ${error}`);
             return;
         }
         // Output the function result
         console.log(`Function output: ${stdout}`);
-        event.sender.send('test', stdout);
+        event.sender.send('getOus', stdout);
     });
 });
 

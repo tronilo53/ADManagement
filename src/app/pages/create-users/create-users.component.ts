@@ -1,4 +1,4 @@
-import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
+import { Component, ElementRef, NgZone, Renderer2, ViewChild } from '@angular/core';
 import { IpcService } from '../../services/ipc.service';
 import Swal from 'sweetalert2';
 
@@ -10,6 +10,8 @@ import Swal from 'sweetalert2';
 export class CreateUsersComponent {
 
   @ViewChild('loading') loading: ElementRef;
+  @ViewChild('loadingModal') loadingModal: ElementRef;
+
   @ViewChild('nombre') nombre: ElementRef;
   @ViewChild('apellidos') apellidos: ElementRef;
   @ViewChild('oficina') oficina: ElementRef;
@@ -28,12 +30,15 @@ export class CreateUsersComponent {
     departamento: '',
     organizacion: '',
     manager: '',
-    copia: ''
+    copia: '',
+    ou: ''
   }
+  public ous: any[] = [];
 
   constructor(
     private renderer: Renderer2,
-    private ipcService: IpcService
+    private ipcService: IpcService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -49,7 +54,22 @@ export class CreateUsersComponent {
     if(field === 'manager') this.renderer.removeClass(this.manager.nativeElement, 'border__error');
     if(field === 'copia') this.renderer.removeClass(this.copia.nativeElement, 'border__error');
   }
-  public anadirMas(): void {
+  public openOu(): void {
+    this.renderer.removeClass(this.loadingModal.nativeElement, 'none');
+    this.ipcService.send('getOus');
+    this.ipcService.removeAllListeners('getOus');
+    this.ipcService.on('getOus', (event, args) => {
+      this.ngZone.run(() => {
+        this.ous = [...JSON.parse(args)]
+        console.log(this.ous);
+        this.renderer.addClass(this.loadingModal.nativeElement, 'none');
+      });
+    });
+  }
+  public ouSelected(): void {
+
+  }
+  public crearUsuario(): void {
     if(this.data.nombre === '' || 
       this.data.apellidos === '' ||
       this.data.oficina === '' ||
@@ -69,11 +89,11 @@ export class CreateUsersComponent {
       if(this.data.copia === '') this.renderer.addClass(this.copia.nativeElement, 'border__error');
       this.alert('Todos los campos son requeridos');
     }else {
-      console.log(this.data);
+      if(this.data.ou === '') this.alert('La Unidad Organizativa de destino es requerida');
+      else {
+        console.log(this.data);
+      }
     }
-  }
-  public crearUsuario(): void {
-
   }
 
   private alert(text: string): void {

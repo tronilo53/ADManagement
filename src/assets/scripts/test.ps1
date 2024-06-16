@@ -1,6 +1,6 @@
 #Importarcion de Active Directory
 Import-Module ActiveDirectory
-
+[Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8
 
 function addUsers {
     param($pathOU)
@@ -24,7 +24,13 @@ function addUsers {
         }
     #>
     
-    Get-ADOrganizationalUnit -LDAPFilter '(name=*)' -SearchBase "OU=Usuarios Henry Schein SPAIN,OU=ES,DC=eu,DC=hsi,DC=local" -SearchScope OneLevel | Select-Object Name, DistinguishedName | ConvertTo-Json
+    Get-ADOrganizationalUnit -LDAPFilter '(name=*)' -SearchBase "OU=Usuarios Henry Schein SPAIN,OU=ES,DC=eu,DC=hsi,DC=local" -SearchScope Subtree | Select-Object Name, DistinguishedName |
+    ForEach-Object {
+        [PSCustomObject]@{
+            Name = $_.Name
+            DistinguishedName = $_.DistinguishedName
+        }
+    } | ConvertTo-Json
     
     <#for ($i = 0; $i -lt $ousRoot.Length; $i++) {
         $plus = $i + 1
