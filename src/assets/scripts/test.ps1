@@ -3,6 +3,7 @@ Import-Module ActiveDirectory
 
 
 function addUsers {
+    param($pathOU)
     <#
     $newPathFile = @("Ous")
         $canonical = @(Get-ADOrganizationalUnit -Properties CanonicalName -Filter * | Sort-Object CanonicalName | Select-Object CanonicalName, DistinguishedName)
@@ -23,11 +24,8 @@ function addUsers {
         }
     #>
     
-    $ousRoot = Get-ADOrganizationalUnit -LDAPFilter '(name=*)' -SearchBase "OU=Usuarios Henry Schein SPAIN,OU=ES,DC=eu,DC=hsi,DC=local" -SearchScope OneLevel | Select-Object Name, DistinguishedName
-    for ($i = 0; $i -lt $ousRoot.Length; $i++) {
-        $nameOU = $ousRoot[$i].Name
-        Write-Host $nameOU
-    }
+    Get-ADOrganizationalUnit -LDAPFilter '(name=*)' -SearchBase "OU=Usuarios Henry Schein SPAIN,OU=ES,DC=eu,DC=hsi,DC=local" -SearchScope OneLevel | Select-Object Name, DistinguishedName | ConvertTo-Json
+    
     <#for ($i = 0; $i -lt $ousRoot.Length; $i++) {
         $plus = $i + 1
         $nameOU = $ousRoot[$i].Name

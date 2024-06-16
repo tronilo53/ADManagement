@@ -45,7 +45,7 @@ createWindow = () => {
                 contextIsolation: false, 
                 nodeIntegration: true 
             },
-            show: false
+            show: true
         }
     );
     appPrelaod = new BrowserWindow(
@@ -58,6 +58,7 @@ createWindow = () => {
                 contextIsolation: false, 
                 nodeIntegration: true 
             },
+            show: false,
             frame: false,
             transparent: true,
             alwaysOnTop: true
@@ -80,10 +81,10 @@ createWindow = () => {
         //checks();
     });
 
-    setTimeout( () => {
+    /*setTimeout( () => {
         appPrelaod.close();
         appWin.show();
-    }, 3000);
+    }, 3000);*/
 
     appWin.on( "closed", () => appWin = null );
     appPrelaod.on( "closed", () => appPrelaod = null );

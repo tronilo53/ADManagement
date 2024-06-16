@@ -1,4 +1,17 @@
-<div class="container">
-    <h2 class="text-warning">Pruebas con PowerShell</h2>
-    <button class="btn btn-primary" (click)="test()">Prueba Click!</button>
+<div class="home animate__animated animate__fadeIn">
+    <div class="container">
+        <div class="row">
+            <img class="logo" src="assets/AD.png" alt="AD.png">
+        </div>
+        <div class="row mt-4">
+            <h2>Elije Una Opción</h2>
+        </div>
+        <div class="row mt-5">
+            <div class="d-grid gap-2">
+                <a class="btn btn-primary" type="button" [routerLink]="['/ManagementUsers']">Gestionar Usuarios</a>
+                <a class="btn btn-primary" type="button">Gestionar OU's</a>
+                <a class="btn btn-primary" type="button">Gestionar Grupos</a>
+            </div>
+        </div>
+    </div>
 </div>

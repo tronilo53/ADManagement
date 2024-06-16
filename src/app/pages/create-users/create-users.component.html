@@ -1,0 +1,88 @@
+<div class="loading none" #loading>
+    <div class="loading-content">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h2>Espere...</h2>
+    </div>
+</div>
+<div class="createUsers animate__animated animate__fadeIn">
+    <div class="container">
+        <div class="row mt-4">
+            <h2>Creación de Usuarios</h2>
+        </div>
+        <div class="row mt-2">
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a [routerLink]="['/Home']">Home</a></li>
+                    <li class="breadcrumb-item"><a [routerLink]="['/ManagementUsers']">Gestionar Usuarios</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Crear Usuarios</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="form mt-2">
+            <div class="row">
+                <div class="col">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" placeholder="Clark">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="mb-3">
+                        <label for="apellidos" class="form-label">Apellidos</label>
+                        <input type="text" class="form-control" id="apellidos" placeholder="Kent">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="mb-3">
+                        <label for="oficina" class="form-label">Oficina</label>
+                        <input type="text" class="form-control" id="oficina" placeholder="Metropolis">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="mb-3">
+                        <label for="puestoTrabajo" class="form-label">Puesto Trabajo</label>
+                        <input type="text" class="form-control" id="puestoTrabajo" placeholder="Periodista">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="mb-3">
+                        <label for="departamento" class="form-label">Departamento</label>
+                        <input type="text" class="form-control" id="departamento" placeholder="Periodístico">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="mb-3">
+                        <label for="organizacion" class="form-label">Organización</label>
+                        <input type="text" class="form-control" id="organizacion" placeholder="Daily Planet">
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <div class="mb-3">
+                        <label for="manager" class="form-label">Manager</label>
+                        <input type="text" class="form-control" id="manager" placeholder="Perry White">
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="mb-3">
+                        <label for="copia" class="form-label">Copia de</label>
+                        <input type="text" class="form-control" id="copia" placeholder="Lois Lane">
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" type="button" (click)="anadirMas()">Añadir más</button>
+                    <button class="btn btn-primary" type="button" (click)="crearUsuario()">Crear Usuario</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

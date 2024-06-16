@@ -5,12 +5,16 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { PreloadComponent } from './pages/preload/preload.component';
 import { HomeComponent } from './pages/home/home.component';
+import { ManagementUsersComponent } from './pages/management-users/management-users.component';
+import { CreateUsersComponent } from './pages/create-users/create-users.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     PreloadComponent,
-    HomeComponent
+    HomeComponent,
+    ManagementUsersComponent,
+    CreateUsersComponent
   ],
   imports: [
     BrowserModule,

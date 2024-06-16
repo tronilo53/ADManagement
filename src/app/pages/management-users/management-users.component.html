@@ -1,0 +1,21 @@
+<div class="managementUsers animate__animated animate__fadeIn">
+    <div class="container">
+        <div class="row mt-4">
+            <h2>Gestión de Usuarios</h2>
+        </div>
+        <div class="row mt-3">
+            <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a [routerLink]="['/Home']">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Gestionar Usuarios</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="row mt-5">
+            <div class="d-grid gap-2">
+                <a class="btn btn-primary" type="button" [routerLink]="['/CreateUsers']">Crear Usuarios</a>
+                <a class="btn btn-primary" type="button">Buscar Usuarios</a>
+            </div>
+        </div>
+    </div>
+</div>
