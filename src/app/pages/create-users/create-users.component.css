@@ -22,3 +22,6 @@
 .none {
     display: none;
 }
+.border__error {
+    border: 1px solid tomato;
+}
