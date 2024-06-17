@@ -23,6 +23,12 @@
 .none {
     display: none;
 }
-.border__error {
-    border: 1px solid tomato;
+.tree-children {
+    list-style: none;
+    padding-left: 20px;
+}
+.tree-node {
+    padding: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 5px;
 }

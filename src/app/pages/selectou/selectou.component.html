@@ -1,0 +1,13 @@
+<div class="loading none" #loading>
+    <div class="loading-content">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+        <h2>Espere...</h2>
+    </div>
+</div>
+<div class="selectOu">
+    <div class="container">
+        <tree-root [nodes]="ous" [options]="options" *ngIf="ous.length > 0"></tree-root>
+    </div>
+</div>

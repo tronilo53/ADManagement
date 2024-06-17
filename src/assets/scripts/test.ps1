@@ -88,14 +88,18 @@ function addUsers {
         }
     }#>
 }
-$get = {param([string]$pathOU,[int]$indent = 2)
-    $ous = Get-ADOrganizationalUnit -LDAPFilter '(name=*)' -SearchBase $pathOU -SearchScope OneLevel | Select-Object Name, DistinguishedName
-    foreach ($child in $ous) {
-      $tab = "-" * $indent
-      "|{0} {1}" -f $tab, $child.Name
-      &$get -pathOU $child.distinguishedname -indent ($indent+=2)
-      $indent-=2
+$global:count = 0
+$get = {param([string]$pathOU)
+    $ous = @(Get-ADOrganizationalUnit -LDAPFilter '(name=*)' -SearchBase $pathOU -SearchScope OneLevel | Select-Object Name, DistinguishedName)
+    $global:pathSelected = $pathOU
+    foreach ($ou in $ous) {
+        [PSCustomObject]@{
+            id = $global:count += 1
+            Name = $ou.Name
+            DistinguishedName = $ou.DistinguishedName
+            subous = @(&$get -pathOU $ou.DistinguishedName)
+        }
     }
-  }
+}
 
-  (Get-ADDomain).Name;invoke-command $get -ArgumentList "OU=Usuarios Henry Schein SPAIN,OU=ES,DC=eu,DC=hsi,DC=local"
+invoke-command $get -ArgumentList "OU=Usuarios Henry Schein SPAIN,OU=ES,DC=eu,DC=hsi,DC=local" | ConvertTo-Json -Depth 3

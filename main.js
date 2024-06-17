@@ -4,7 +4,7 @@
 const { app, BrowserWindow, ipcMain, Menu } = require( "electron" );
 const isDev = require( "electron-is-dev" );
 const { autoUpdater } = require( "electron-updater" );
-const { exec, spawn } = require( "child_process" );
+const { exec} = require( "child_process" );
 
 /**
  * * Propiedades de AutoUpdater
@@ -16,7 +16,7 @@ autoUpdater.autoRunAppAfterInstall = true;
  * * Declaraciones de Variables
  */
 let appWin;
-let appPrelaod;
+//let appPrelaod;
 
 /**
  * * Preparación del Menú
@@ -48,7 +48,7 @@ createWindow = () => {
             show: true
         }
     );
-    appPrelaod = new BrowserWindow(
+    /*appPrelaod = new BrowserWindow(
         {
             width: 600, 
             height: 400,
@@ -63,19 +63,20 @@ createWindow = () => {
             transparent: true,
             alwaysOnTop: true
         }
-    );
+    );*/
     if(isDev) {
         appWin.setIcon( 'src/assets/favicon.png' );
-        appPrelaod.setIcon( 'src/assets/favicon.png' );
+        //appPrelaod.setIcon( 'src/assets/favicon.png' );
         const menuDev = Menu.buildFromTemplate( menuTemplateDev );
         appWin.setMenu( menuDev );
         appWin.loadURL( 'http://localhost:4200/' );
-        appPrelaod.loadURL( 'http://localhost:4200/#/Preload' );
+        //appPrelaod.loadURL( 'http://localhost:4200/#/Preload' );
+        //appWin.webContents.openDevTools({mode: 'detach'});
     }else {
         appWin.setIcon( 'resources/app/src/assets/favicon.png' );
-        appPrelaod.setIcon( 'resources/app/src/assets/favicon.png' );
+        //appPrelaod.setIcon( 'resources/app/src/assets/favicon.png' );
         appWin.loadURL( `file://${ __dirname }/dist/index.html` );
-        appPrelaod.loadURL( `file://${ __dirname }/dist/index.html#/Preload` );
+        //appPrelaod.loadURL( `file://${ __dirname }/dist/index.html#/Preload` );
     }
     appWin.once( "ready-to-show", () => {
         //checks();
@@ -87,7 +88,7 @@ createWindow = () => {
     }, 3000);*/
 
     appWin.on( "closed", () => appWin = null );
-    appPrelaod.on( "closed", () => appPrelaod = null );
+    //appPrelaod.on( "closed", () => appPrelaod = null );
 };
 
 /**
@@ -121,6 +122,8 @@ ipcMain.on('getOus', (event, args) => {
         event.sender.send('getOus', stdout);
     });
 });
+
+// Maneja los eventos de IPC desde la interfaz de usuario
 
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());

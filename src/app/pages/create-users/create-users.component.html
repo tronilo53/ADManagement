@@ -79,7 +79,7 @@
             </div>
             <div class="row">
                 <div class="d-grid gap-2">
-                    <button class="btn btn-secondary" type="button" data-bs-toggle="modal" data-bs-target="#exampleModal" (click)="openOu()">Unidad Organizativa</button>
+                    <a [routerLink]="['/SelectOu']" class="btn btn-secondary" type="button" data-bs-target="#modalOu">Unidad Organizativa</a>
                 </div>
             </div>
             <div class="row mt-4">
@@ -93,33 +93,3 @@
         </div>
     </div>
 </div>
-<!-- Modal -->
-<div class="modal fade" data-bs-backdrop="static" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="loadingModal none" #loadingModal>
-            <div class="loadingModal-content">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <h5>Cargando OU's...</h5>
-            </div>
-        </div>
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="exampleModalLabel">Unidad Organizativa</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="row">
-            <select class="form-select" aria-label="Default select example">
-                <option value="???">Seleccione OU</option>
-                <option [value]="ou.Name" *ngFor="let ou of ous">{{ ou.Name }}</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" (click)="ouSelected()">Seleccionar</button>
-        </div>
-      </div>
-    </div>
-  </div>

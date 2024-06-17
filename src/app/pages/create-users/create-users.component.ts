@@ -1,5 +1,5 @@
-import { Component, ElementRef, NgZone, Renderer2, ViewChild } from '@angular/core';
-import { IpcService } from '../../services/ipc.service';
+import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+
 import Swal from 'sweetalert2';
 
 @Component({
@@ -7,10 +7,9 @@ import Swal from 'sweetalert2';
   templateUrl: './create-users.component.html',
   styleUrl: './create-users.component.css'
 })
-export class CreateUsersComponent {
+export class CreateUsersComponent implements OnInit {
 
   @ViewChild('loading') loading: ElementRef;
-  @ViewChild('loadingModal') loadingModal: ElementRef;
 
   @ViewChild('nombre') nombre: ElementRef;
   @ViewChild('apellidos') apellidos: ElementRef;
@@ -21,7 +20,6 @@ export class CreateUsersComponent {
   @ViewChild('manager') manager: ElementRef;
   @ViewChild('copia') copia: ElementRef;
 
-  public usersNumb: number = 0;
   public data: any = {
     nombre: '',
     apellidos: '',
@@ -33,12 +31,9 @@ export class CreateUsersComponent {
     copia: '',
     ou: ''
   }
-  public ous: any[] = [];
 
   constructor(
-    private renderer: Renderer2,
-    private ipcService: IpcService,
-    private ngZone: NgZone
+    private renderer: Renderer2
   ) {}
 
   ngOnInit(): void {
@@ -53,21 +48,6 @@ export class CreateUsersComponent {
     if(field === 'organizacion') this.renderer.removeClass(this.organizacion.nativeElement, 'border__error');
     if(field === 'manager') this.renderer.removeClass(this.manager.nativeElement, 'border__error');
     if(field === 'copia') this.renderer.removeClass(this.copia.nativeElement, 'border__error');
-  }
-  public openOu(): void {
-    this.renderer.removeClass(this.loadingModal.nativeElement, 'none');
-    this.ipcService.send('getOus');
-    this.ipcService.removeAllListeners('getOus');
-    this.ipcService.on('getOus', (event, args) => {
-      this.ngZone.run(() => {
-        this.ous = [...JSON.parse(args)]
-        console.log(this.ous);
-        this.renderer.addClass(this.loadingModal.nativeElement, 'none');
-      });
-    });
-  }
-  public ouSelected(): void {
-
   }
   public crearUsuario(): void {
     if(this.data.nombre === '' || 
