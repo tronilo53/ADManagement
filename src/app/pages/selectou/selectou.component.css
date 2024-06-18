@@ -23,12 +23,8 @@
 .none {
     display: none;
 }
-.tree-children {
-    list-style: none;
-    padding-left: 20px;
-}
-.tree-node {
+.custom-tree-node {
+    display: flex;
+    align-items: center;
     padding: 5px;
-    border: 1px solid #ccc;
-    margin-bottom: 5px;
-}
+  }

@@ -8,6 +8,23 @@
 </div>
 <div class="selectOu">
     <div class="container">
-        <tree-root [nodes]="ous" [options]="options" *ngIf="ous.length > 0"></tree-root>
+        <div class="row">
+            <p-tree 
+                class="w-full md:w-30rem"
+                [value]="ous"
+                selectionMode="single"
+                [(selection)]="selectedFile"
+                (onNodeSelect)="nodeSelect($event)"
+                (onNodeUnselect)="nodeUnselect($event)"
+                *ngIf="ous.length > 0">
+                <ng-template let-node pTemplate="default">
+                    <span class="custom-tree-node">{{node.label}}</span>
+                </ng-template>
+            </p-tree>
+            <div *ngIf="selectedFile">
+                <h5>Selected Node</h5>
+                <pre>{{selectedFile}}</pre>
+              </div>
+        </div>
     </div>
 </div>
