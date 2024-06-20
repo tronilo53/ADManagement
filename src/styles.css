@@ -3,3 +3,13 @@
 @import 'primeng/resources/themes/saga-blue/theme.css';
 @import 'primeng/resources/primeng.min.css';
 @import 'primeicons/primeicons.css';
+
+@font-face {
+    font-family: 'Righteous';
+    src: url('./assets//fonts/Righteous/Righteous-Regular.woff2') format('woff2'),
+        url('./assets/fonts/Righteous/Righteous-Regular.woff') format('woff'),
+        url('./assets/fonts/Righteous/Righteous-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}

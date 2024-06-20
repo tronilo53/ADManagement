@@ -1,11 +1,11 @@
-.loading {
+.loading, .loadingOus {
     width: 100%;
     height: 100%;
     position: fixed;
     z-index: 1000;
     background-color: rgba(0,0,0,0.4);
 }
-.loading .loading-content {
+.loading .loading-content, .loadingOus .loading-content {
     position: absolute;
     width: 80%;
     border-radius: 1rem;
@@ -16,9 +16,24 @@
     text-align: center;
     color: var(--bs-dark);
 }
+.loadingOus .loading-content {
+    background-color: white;
+    padding: 30px 0;
+    top: 35%;
+}
+.loadingOus .loading-content h2 {
+    font-size: 1.5rem;
+}
+.loadingOus .loading-content h4 {
+    font-size: 1.2rem;
+}
 .loading .loading-content .spinner-border {
     width: 4rem;
     height: 4rem;
+}
+.content-ous {
+    height: 200px;
+    overflow-y: auto;
 }
 .none {
     display: none;

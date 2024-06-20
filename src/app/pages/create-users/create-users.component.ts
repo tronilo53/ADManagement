@@ -1,15 +1,20 @@
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { TreeNode } from 'primeng/api';
 
 import Swal from 'sweetalert2';
+import { IpcService } from '../../services/ipc.service';
+
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-create-users',
   templateUrl: './create-users.component.html',
   styleUrl: './create-users.component.css'
 })
-export class CreateUsersComponent implements OnInit {
+export class CreateUsersComponent implements OnInit, AfterViewInit {
 
   @ViewChild('loading') loading: ElementRef;
+  @ViewChild('loadingOus') loadingOus: ElementRef;
 
   @ViewChild('nombre') nombre: ElementRef;
   @ViewChild('apellidos') apellidos: ElementRef;
@@ -31,14 +36,19 @@ export class CreateUsersComponent implements OnInit {
     copia: '',
     ou: ''
   }
+  public ous: TreeNode[] = [];
+  public selectedOu: TreeNode | null = null;
+  public selectedOuCop: TreeNode | null = null;
 
   constructor(
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private ipcService: IpcService,
+    private ngZone: NgZone
   ) {}
 
-  ngOnInit(): void {
-    
-  }
+  ngAfterViewInit(): void {}
+  ngOnInit(): void {}
+
   public deleteBorder(field: string): void {
     if(field === 'nombre') this.renderer.removeClass(this.nombre.nativeElement, 'border__error');
     if(field === 'apellidos') this.renderer.removeClass(this.apellidos.nativeElement, 'border__error');
@@ -75,6 +85,44 @@ export class CreateUsersComponent implements OnInit {
       }
     }
   }
+  public nodeSelect(event: any): void {
+    console.log('Nodo Seleccionado: ', event.node);
+    this.selectedOu = event.node;
+  }
+  public nodeUnselect(event: any): void {
+    console.log('Nodo Deseleccionado: ', event.node);
+    this.selectedOu = null;
+  }
+  public openOus(): void {
+    const modalElement = document.getElementById('modalOu');
+    const modalInstance = new bootstrap.Modal(modalElement);
+    this.renderer.removeClass(this.loadingOus.nativeElement, 'none');
+    this.ipcService.send('getOus');
+    this.ipcService.removeAllListeners('getOus');
+    this.ipcService.on('getOus', (event, data) => {
+      this.ngZone.run(() => {
+        this.ous = [...JSON.parse(data)];
+        this.modifyTreeNodes(this.ous);
+        console.log(this.ous);
+        this.renderer.addClass(this.loadingOus.nativeElement, 'none');
+        modalInstance.show();
+      });
+    });
+  }
+  public closeModal(): void {
+    const modalElement = document.getElementById('modalOu');
+    const modalInstance = new bootstrap.Modal(modalElement);
+    modalInstance.hide();
+  }
+  public selectOu(): void {
+    if(this.selectedOu == null) this.alert('No se ha seleccionado ninguna OU');
+    else {
+      const modalElement = document.getElementById('modalOu');
+      const modalInstance = new bootstrap.Modal(modalElement);
+      this.selectedOuCop = this.selectedOu;
+      modalInstance.hide();
+    }
+  }
 
   private alert(text: string): void {
     Swal.fire({
@@ -82,5 +130,11 @@ export class CreateUsersComponent implements OnInit {
       text,
       allowOutsideClick: false
     });
+  }
+  private modifyTreeNodes(nodes: TreeNode[] | any[]): void {
+    for(let i = 0; i < nodes.length; i++) {
+      if(nodes[i].children === "[]") nodes[i].children = [];
+      if(nodes[i].children && nodes[i].children.length > 0) this.modifyTreeNodes(nodes[i].children);
+    }
   }
 }

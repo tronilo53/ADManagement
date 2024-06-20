@@ -9,7 +9,6 @@ import { PreloadComponent } from './pages/preload/preload.component';
 import { HomeComponent } from './pages/home/home.component';
 import { ManagementUsersComponent } from './pages/management-users/management-users.component';
 import { CreateUsersComponent } from './pages/create-users/create-users.component';
-import { SelectouComponent } from './pages/selectou/selectou.component';
 
 @NgModule({
   declarations: [
@@ -17,8 +16,7 @@ import { SelectouComponent } from './pages/selectou/selectou.component';
     PreloadComponent,
     HomeComponent,
     ManagementUsersComponent,
-    CreateUsersComponent,
-    SelectouComponent
+    CreateUsersComponent
   ],
   imports: [
     BrowserModule,

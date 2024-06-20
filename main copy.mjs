@@ -1,10 +1,13 @@
 /**
  * * Importaciones de Módulos
  */
-const { app, BrowserWindow, ipcMain, Menu } = require( "electron" );
-const isDev = require( "electron-is-dev" );
-const { autoUpdater } = require( "electron-updater" );
-const { exec} = require( "child_process" );
+import { app, BrowserWindow, ipcMain, Menu } from "electron";
+import isDev from "electron-is-dev";
+import pkg from "electron-updater";
+const { autoUpdater } = pkg;
+import { exec } from "child_process";
+import Store from "electron-store";
+const store = new Store();
 
 /**
  * * Propiedades de AutoUpdater
@@ -16,7 +19,7 @@ autoUpdater.autoRunAppAfterInstall = true;
  * * Declaraciones de Variables
  */
 let appWin;
-//let appPrelaod;
+let appPrelaod;
 
 /**
  * * Preparación del Menú
@@ -33,7 +36,7 @@ let menuTemplateDev = [
 /**
  * * Función de ventana Principal y Preload
  */
-createWindow = () => {
+function createWindow() {
     //autoUpdater.checkForUpdates();
     appWin = new BrowserWindow(
         { 
@@ -45,10 +48,10 @@ createWindow = () => {
                 contextIsolation: false, 
                 nodeIntegration: true 
             },
-            show: true
+            show: false
         }
     );
-    /*appPrelaod = new BrowserWindow(
+    appPrelaod = new BrowserWindow(
         {
             width: 600, 
             height: 400,
@@ -58,34 +61,43 @@ createWindow = () => {
                 contextIsolation: false, 
                 nodeIntegration: true 
             },
-            show: false,
+            show: true,
             frame: false,
             transparent: true,
             alwaysOnTop: true
         }
-    );*/
+    );
     if(isDev) {
-        appWin.setIcon( 'src/assets/favicon.png' );
-        //appPrelaod.setIcon( 'src/assets/favicon.png' );
+        appWin.setIcon( './src/assets/favicon.png' );
+        appPrelaod.setIcon( './src/assets/favicon.png' );
         const menuDev = Menu.buildFromTemplate( menuTemplateDev );
         appWin.setMenu( menuDev );
         appWin.loadURL( 'http://localhost:4200/' );
-        //appPrelaod.loadURL( 'http://localhost:4200/#/Preload' );
-        //appWin.webContents.openDevTools({mode: 'detach'});
+        appPrelaod.loadURL( 'http://localhost:4200/#/Preload' );
+        //appPrelaod.webContents.openDevTools({mode: 'detach'});
+        appWin.webContents.openDevTools({mode: 'detach'});
     }else {
         appWin.setIcon( 'resources/app/src/assets/favicon.png' );
-        //appPrelaod.setIcon( 'resources/app/src/assets/favicon.png' );
+        appPrelaod.setIcon( 'resources/app/src/assets/favicon.png' );
         appWin.loadURL( `file://${ __dirname }/dist/index.html` );
-        //appPrelaod.loadURL( `file://${ __dirname }/dist/index.html#/Preload` );
+        appPrelaod.loadURL( `file://${ __dirname }/dist/index.html#/Preload` );
     }
-    appWin.once( "ready-to-show", () => {
+    appPrelaod.once( "ready-to-show", () => {
         //checks();
+        const path = 'src/assets/scripts/test.ps1';
+        exec(`powershell.exe -ExecutionPolicy Bypass -Command "& { . '${path}' }"`, (error, stdout, stderr) => {
+            if (error) {
+            appWin.webContents.send('getOusError', error.message);
+            return;
+            }
+            if(store.get('ous')){
+                store.delete('ous');
+                store.set('ous', stdout);
+            }else store.set('ous', stdout);
+            appPrelaod.close();
+            appWin.show();
+        });
     });
-
-    /*setTimeout( () => {
-        appPrelaod.close();
-        appWin.show();
-    }, 3000);*/
 
     appWin.on( "closed", () => appWin = null );
     //appPrelaod.on( "closed", () => appPrelaod = null );
@@ -108,19 +120,12 @@ app.on( "window-all-closed", () => {
 /**
  * * Comunicación entre procesos
  */
-
+ipcMain.on('closePreload', (event, args) => {
+    appPrelaod.close();
+    appWin.show();
+});
 ipcMain.on('getOus', (event, args) => {
-    const path = 'src/assets/scripts/test.ps1';
-    exec(`powershell.exe -ExecutionPolicy Bypass -Command "& { . '${path}' }"`, (error, stdout, stderr) => {
-        if (error) {
-            event.sender.send('getOus', error);
-            console.error(`exec error: ${error}`);
-            return;
-        }
-        // Output the function result
-        console.log(`Function output: ${stdout}`);
-        event.sender.send('getOus', stdout);
-    });
+    event.sender.send('getOus', store.get('ous'));
 });
 
 // Maneja los eventos de IPC desde la interfaz de usuario

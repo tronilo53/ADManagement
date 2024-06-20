@@ -6,6 +6,15 @@
         <h2>Espere...</h2>
     </div>
 </div>
+<div class="loadingOus animate__animated animate__fadeIn none" #loadingOus>
+    <div class="loading-content">
+        <h2>Cargando...</h2>
+        <h4>Unidades Organizativas</h4>
+        <div class="spinner-border mt-2" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+</div>
 <div class="createUsers animate__animated animate__fadeIn">
     <div class="container">
         <div class="row mt-4">
@@ -79,7 +88,7 @@
             </div>
             <div class="row">
                 <div class="d-grid gap-2">
-                    <a [routerLink]="['/SelectOu']" class="btn btn-secondary" type="button" data-bs-target="#modalOu">Unidad Organizativa</a>
+                    <button class="btn btn-secondary" type="button" (click)="openOus()">Unidad Organizativa</button>
                 </div>
             </div>
             <div class="row mt-4">
@@ -88,7 +97,41 @@
                 </div>
             </div>
             <div class="row mt-3">
-                <p class="text-primary">OU Seleccionada: {{ data.ou }}</p>
+                <p class="text-danger" *ngIf="selectedOuCop">Ou Seleccionada: <span class="text-primary">{{ selectedOuCop.label }}</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="modalOu" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+                <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
+            </div>
+            <div class="modal-body">
+                <h3>Unidades Organizativas:</h3>
+                <h5>Seleccione una Unidad Organizativa</h5>
+                <p class="text-danger" style="font-size: 0.8rem;" *ngIf="selectedOu">Ou Seleccionada: <span class="text-primary">{{ selectedOu.label }}</span></p>
+                <div class="content-ous">
+                    <p-tree 
+                    class="w-full md:w-30rem mt-2"
+                    [value]="ous"
+                    selectionMode="single"
+                    [(selection)]="selectedOu"
+                    (onNodeSelect)="nodeSelect($event)"
+                    (onNodeUnselect)="nodeUnselect($event)"
+                    *ngIf="ous.length > 0">
+                    <ng-template let-node pTemplate="default">
+                        <span class="custom-tree-node">{{node.label}}</span>
+                    </ng-template>
+                </p-tree>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" (click)="closeModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" (click)="selectOu()">Seleccionar</button>
             </div>
         </div>
     </div>

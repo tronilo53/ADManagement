@@ -4,14 +4,12 @@ import { PreloadComponent } from './pages/preload/preload.component';
 import { HomeComponent } from './pages/home/home.component';
 import { ManagementUsersComponent } from './pages/management-users/management-users.component';
 import { CreateUsersComponent } from './pages/create-users/create-users.component';
-import { SelectouComponent } from './pages/selectou/selectou.component';
 
 const routes: Routes = [
   {path: 'Preload', component: PreloadComponent},
   {path: 'Home', component: HomeComponent },
   {path: 'ManagementUsers', component: ManagementUsersComponent },
   {path: 'CreateUsers', component: CreateUsersComponent },
-  {path: 'SelectOu', component: SelectouComponent  },
   {path: '**', pathMatch: 'full', redirectTo: 'Home' }
 ];
 
