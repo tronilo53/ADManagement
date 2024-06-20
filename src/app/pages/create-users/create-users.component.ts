@@ -13,6 +13,8 @@ declare var bootstrap: any;
 })
 export class CreateUsersComponent implements OnInit, AfterViewInit {
 
+  private regExEmail: RegExp = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+
   @ViewChild('loading') loading: ElementRef;
   @ViewChild('loadingOus') loadingOus: ElementRef;
   @ViewChild('modalOu') modalOu!: ElementRef;
@@ -86,14 +88,22 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
       if(this.data.copia === '') this.renderer.addClass(this.copia.nativeElement, 'border__error');
       this.alert('Todos los campos son requeridos');
     }else {
-      if(!this.selectedOu) this.alert('La Unidad Organizativa de destino es requerida');
-      else {
-        this.data.ou = this.selectedOu.data
-        console.log(this.data);
-        this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',ou: ''};
-        this.selectedOu = null;
-        this.selectedOuViewInit = null;
-        this.selectedOuViewInitAnt = null;
+      if(!this.regExEmail.test(this.data.manager)) {
+        this.alert('El email introducido en "Manager" no es válido');
+        this.renderer.addClass(this.manager.nativeElement, 'border__error');
+      }else if(!this.regExEmail.test(this.data.copia)) {
+        this.alert('El email introducido en "Copia De" no es válido');
+        this.renderer.addClass(this.copia.nativeElement, 'border__error');
+      }else {
+        if(!this.selectedOu) this.alert('La Unidad Organizativa de destino es requerida');
+        else {
+          this.data.ou = this.selectedOu.data
+          console.log(this.data);
+          this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',ou: ''};
+          this.selectedOu = null;
+          this.selectedOuViewInit = null;
+          this.selectedOuViewInitAnt = null;
+        }
       }
     }
   }
@@ -103,7 +113,10 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
   }
   public nodeUnselect(event: any): void {
     console.log('Nodo Deseleccionado: ', event.node);
-    this.selectedOu = null;
+    if(this.selectedOuViewInit) {
+      this.selectedOu = this.selectedOuViewInit;
+    }
+    else this.selectedOu = null;
   }
   public openOus(): void {
     if(this.data.nombre === '' || 
@@ -132,9 +145,9 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     }
   }
   public closeModal(): void {
-    if(this.selectedOuViewInit) {
-      
-    }
+    if(!this.selectedOuViewInit) this.selectedOu = null;
+    else this.selectedOu = this.selectedOuViewInit;
+    this.collapseNodes(this.ous);
     this.modalInstance.hide();
   }
   public selectOu(): void {
@@ -158,6 +171,16 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     for(let i = 0; i < nodes.length; i++) {
       if(nodes[i].children === "[]") nodes[i].children = [];
       if(nodes[i].children && nodes[i].children.length > 0) this.modifyTreeNodes(nodes[i].children);
+    }
+  }
+  private collapseNodes(nodes: TreeNode[]): void {
+    if(nodes) {
+      for(let node of nodes) {
+        node.expanded = false;
+        if(node.children && node.children.length) {
+          this.collapseNodes(node.children);
+        }
+      }
     }
   }
 }
