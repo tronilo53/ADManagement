@@ -97,13 +97,13 @@
                 </div>
             </div>
             <div class="row mt-3">
-                <p class="text-danger" *ngIf="selectedOuCop">Ou Seleccionada: <span class="text-primary">{{ selectedOuCop.label }}</span></p>
+                <p class="text-danger" *ngIf="selectedOuViewInit">Ou Seleccionada: <span class="text-primary">{{ selectedOuViewInit.label }}</span></p>
             </div>
         </div>
     </div>
 </div>
 <!-- Modal -->
-<div class="modal fade" id="modalOu" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="modalOu" data-bs-backdrop="static" #modalOu>
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

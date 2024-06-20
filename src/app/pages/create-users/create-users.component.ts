@@ -15,6 +15,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
 
   @ViewChild('loading') loading: ElementRef;
   @ViewChild('loadingOus') loadingOus: ElementRef;
+  @ViewChild('modalOu') modalOu!: ElementRef;
+  public modalInstance: any;
 
   @ViewChild('nombre') nombre: ElementRef;
   @ViewChild('apellidos') apellidos: ElementRef;
@@ -38,7 +40,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
   }
   public ous: TreeNode[] = [];
   public selectedOu: TreeNode | null = null;
-  public selectedOuCop: TreeNode | null = null;
+  public selectedOuViewInit: TreeNode | null = null;
+  public selectedOuViewInitAnt: TreeNode | null = null;
 
   constructor(
     private renderer: Renderer2,
@@ -46,7 +49,11 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     private ngZone: NgZone
   ) {}
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+    if(this.modalOu) {
+      this.modalInstance = new bootstrap.Modal(this.modalOu.nativeElement);
+    }else console.log('El modal No está Inicializado');
+  }
   ngOnInit(): void {}
 
   public deleteBorder(field: string): void {
@@ -79,9 +86,14 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
       if(this.data.copia === '') this.renderer.addClass(this.copia.nativeElement, 'border__error');
       this.alert('Todos los campos son requeridos');
     }else {
-      if(this.data.ou === '') this.alert('La Unidad Organizativa de destino es requerida');
+      if(!this.selectedOu) this.alert('La Unidad Organizativa de destino es requerida');
       else {
+        this.data.ou = this.selectedOu.data
         console.log(this.data);
+        this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',ou: ''};
+        this.selectedOu = null;
+        this.selectedOuViewInit = null;
+        this.selectedOuViewInitAnt = null;
       }
     }
   }
@@ -94,33 +106,44 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     this.selectedOu = null;
   }
   public openOus(): void {
-    const modalElement = document.getElementById('modalOu');
-    const modalInstance = new bootstrap.Modal(modalElement);
-    this.renderer.removeClass(this.loadingOus.nativeElement, 'none');
-    this.ipcService.send('getOus');
-    this.ipcService.removeAllListeners('getOus');
-    this.ipcService.on('getOus', (event, data) => {
-      this.ngZone.run(() => {
-        this.ous = [...JSON.parse(data)];
-        this.modifyTreeNodes(this.ous);
-        console.log(this.ous);
-        this.renderer.addClass(this.loadingOus.nativeElement, 'none');
-        modalInstance.show();
+    if(this.data.nombre === '' || 
+      this.data.apellidos === '' ||
+      this.data.oficina === '' ||
+      this.data.puestoTrabajo === '' ||
+      this.data.departamento === '' ||
+      this.data.organizacion === '' ||
+      this.data.manager === '' ||
+      this.data.copia === ''
+    ) {
+      this.alert('Antes de Seleccionar una Unidad Organizativa, tienes que rellenar los demás campos');
+    }else {
+      this.renderer.removeClass(this.loadingOus.nativeElement, 'none');
+      this.ipcService.send('getOus');
+      this.ipcService.removeAllListeners('getOus');
+      this.ipcService.on('getOus', (event, data) => {
+        this.ngZone.run(() => {
+          this.ous = [...JSON.parse(data)];
+          this.modifyTreeNodes(this.ous);
+          console.log(this.ous);
+          this.renderer.addClass(this.loadingOus.nativeElement, 'none');
+          this.modalInstance.show();
+        });
       });
-    });
+    }
   }
   public closeModal(): void {
-    const modalElement = document.getElementById('modalOu');
-    const modalInstance = new bootstrap.Modal(modalElement);
-    modalInstance.hide();
+    if(this.selectedOuViewInit) {
+      
+    }
+    this.modalInstance.hide();
   }
   public selectOu(): void {
     if(this.selectedOu == null) this.alert('No se ha seleccionado ninguna OU');
     else {
-      const modalElement = document.getElementById('modalOu');
-      const modalInstance = new bootstrap.Modal(modalElement);
-      this.selectedOuCop = this.selectedOu;
-      modalInstance.hide();
+      this.selectedOuViewInit = this.selectedOu;
+      this.selectedOuViewInitAnt = this.selectedOuViewInit;
+      if(this.modalInstance) this.modalInstance.hide();
+      else console.log('modalInstance no está inicializado');
     }
   }
 
