@@ -43,7 +43,6 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
   public ous: TreeNode[] = [];
   public selectedOu: TreeNode | null = null;
   public selectedOuViewInit: TreeNode | null = null;
-  public selectedOuViewInitAnt: TreeNode | null = null;
 
   constructor(
     private renderer: Renderer2,
@@ -98,21 +97,28 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
         if(!this.selectedOu) this.alert('La Unidad Organizativa de destino es requerida');
         else {
           this.data.ou = this.selectedOu.data
-          console.log(this.data);
-          this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',ou: ''};
-          this.selectedOu = null;
-          this.selectedOuViewInit = null;
-          this.selectedOuViewInitAnt = null;
+          this.ipcService.send('Get-ADUser', this.data.manager);
+          this.ipcService.removeAllListeners('Get-ADUser');
+          this.ipcService.on('Get-ADUser', (event, data) => {
+            if(data.data.indexOf('DistinguishedName') > -1) {
+              console.log(JSON.parse(data.data));
+            }else {
+              console.log(data);
+            }
+          });
+          //this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',ou: ''};
+          //this.selectedOu = null;
+          //this.selectedOuViewInit = null;
         }
       }
     }
   }
   public nodeSelect(event: any): void {
-    console.log('Nodo Seleccionado: ', event.node);
+    //console.log('Nodo Seleccionado: ', event.node);
     this.selectedOu = event.node;
   }
   public nodeUnselect(event: any): void {
-    console.log('Nodo Deseleccionado: ', event.node);
+    //console.log('Nodo Deseleccionado: ', event.node);
     if(this.selectedOuViewInit) {
       this.selectedOu = this.selectedOuViewInit;
     }
@@ -137,7 +143,7 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
         this.ngZone.run(() => {
           this.ous = [...JSON.parse(data)];
           this.modifyTreeNodes(this.ous);
-          console.log(this.ous);
+          //console.log(this.ous);
           this.renderer.addClass(this.loadingOus.nativeElement, 'none');
           this.modalInstance.show();
         });
@@ -154,7 +160,6 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     if(this.selectedOu == null) this.alert('No se ha seleccionado ninguna OU');
     else {
       this.selectedOuViewInit = this.selectedOu;
-      this.selectedOuViewInitAnt = this.selectedOuViewInit;
       if(this.modalInstance) this.modalInstance.hide();
       else console.log('modalInstance no está inicializado');
     }

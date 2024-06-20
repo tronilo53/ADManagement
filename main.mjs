@@ -4,10 +4,13 @@
 import { app, BrowserWindow, ipcMain, Menu } from "electron";
 import isDev from "electron-is-dev";
 import pkg from "electron-updater";
-const { autoUpdater } = pkg;
-import { exec } from "child_process";
+import { execFile } from "child_process";
 import Store from "electron-store";
+
+const { autoUpdater } = pkg;
 const store = new Store();
+
+app.disableHardwareAcceleration();
 
 /**
  * * Propiedades de AutoUpdater
@@ -62,11 +65,13 @@ function createPreload() {
     }
     appPrelaod.once( "ready-to-show", () => {
         const path = 'src/assets/scripts/test.ps1';
-        exec(`powershell.exe -ExecutionPolicy Bypass -Command "& { . '${path}' }"`, (error, stdout, stderr) => {
+        execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path],(error, stdout, stderr) => {
             if (error) {
             appWin.webContents.send('getOusError', error.message);
+            console.log(error.message);
             return;
             }
+            console.log(stdout);
             if(store.get('ous')){
                 store.delete('ous');
                 store.set('ous', stdout);
@@ -129,6 +134,16 @@ ipcMain.on('closePreload', (event, args) => {
 });
 ipcMain.on('getOus', (event, args) => {
     event.sender.send('getOus', store.get('ous'));
+});
+ipcMain.on('Get-ADUser', (event, data) => {
+    const path = 'src/assets/scripts/Get-ADUser.ps1';
+    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-email', data],(error, stdout, stderr) => {
+        if(error) {
+            event.sender.send('Get-ADUser', { response: 'Error', data: error.message });
+            return;
+        }
+        event.sender.send('Get-ADUser', { response: 'Success', data: stdout });
+    });
 });
 
 // Maneja los eventos de IPC desde la interfaz de usuario
