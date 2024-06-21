@@ -14,6 +14,7 @@ declare var bootstrap: any;
 export class CreateUsersComponent implements OnInit, AfterViewInit {
 
   private regExEmail: RegExp = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+  private regExPassword: RegExp = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])[A-Za-z\d!@#$%^&*(),.?":{}|<>]{8,}$/;
 
   @ViewChild('loading') loading: ElementRef;
   @ViewChild('loadingOus') loadingOus: ElementRef;
@@ -28,6 +29,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
   @ViewChild('organizacion') organizacion: ElementRef;
   @ViewChild('manager') manager: ElementRef;
   @ViewChild('copia') copia: ElementRef;
+  @ViewChild('upn') upn: ElementRef;
+  @ViewChild('password') password: ElementRef;
 
   public data: any = {
     nombre: '',
@@ -38,6 +41,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     organizacion: '',
     manager: '',
     copia: '',
+    upn: '???',
+    password: '',
     ou: ''
   }
   public ous: TreeNode[] = [];
@@ -51,9 +56,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    if(this.modalOu) {
-      this.modalInstance = new bootstrap.Modal(this.modalOu.nativeElement);
-    }else console.log('El modal No está Inicializado');
+    if(this.modalOu) this.modalInstance = new bootstrap.Modal(this.modalOu.nativeElement);
+    else console.log('El modal OU No está Inicializado');
   }
   ngOnInit(): void {}
 
@@ -66,6 +70,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     if(field === 'organizacion') this.renderer.removeClass(this.organizacion.nativeElement, 'border__error');
     if(field === 'manager') this.renderer.removeClass(this.manager.nativeElement, 'border__error');
     if(field === 'copia') this.renderer.removeClass(this.copia.nativeElement, 'border__error');
+    if(field === 'upn') this.renderer.removeClass(this.upn.nativeElement, 'border__error');
+    if(field === 'password') this.renderer.removeClass(this.password.nativeElement, 'border__error');
   }
   public crearUsuario(): void {
     if(this.data.nombre === '' || 
@@ -75,7 +81,9 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
       this.data.departamento === '' ||
       this.data.organizacion === '' ||
       this.data.manager === '' ||
-      this.data.copia === ''
+      this.data.copia === '' ||
+      this.data.upn === '???' ||
+      this.data.password === ''
     ) {
       if(this.data.nombre === '') this.renderer.addClass(this.nombre.nativeElement, 'border__error');
       if(this.data.apellidos === '') this.renderer.addClass(this.apellidos.nativeElement, 'border__error');
@@ -85,6 +93,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
       if(this.data.organizacion === '') this.renderer.addClass(this.organizacion.nativeElement, 'border__error');
       if(this.data.manager === '') this.renderer.addClass(this.manager.nativeElement, 'border__error');
       if(this.data.copia === '') this.renderer.addClass(this.copia.nativeElement, 'border__error');
+      if(this.data.upn === '???') this.renderer.addClass(this.upn.nativeElement, 'border__error');
+      if(this.data.password === '') this.renderer.addClass(this.password.nativeElement, 'border__error');
       this.alert('Todos los campos son requeridos');
     }else {
       if(!this.regExEmail.test(this.data.manager)) {
@@ -93,22 +103,13 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
       }else if(!this.regExEmail.test(this.data.copia)) {
         this.alert('El email introducido en "Copia De" no es válido');
         this.renderer.addClass(this.copia.nativeElement, 'border__error');
+      }else if(!this.regExPassword.test(this.data.password)) {
+        this.alert('La contraseña no cumple con los requisitos comunes de Active Directory');
+        this.renderer.addClass(this.password.nativeElement, 'border__error');
       }else {
         if(!this.selectedOu) this.alert('La Unidad Organizativa de destino es requerida');
         else {
-          this.data.ou = this.selectedOu.data
-          this.ipcService.send('Get-ADUser', this.data.manager);
-          this.ipcService.removeAllListeners('Get-ADUser');
-          this.ipcService.on('Get-ADUser', (event, data) => {
-            if(data.data.indexOf('DistinguishedName') > -1) {
-              console.log(JSON.parse(data.data));
-            }else {
-              console.log(data);
-            }
-          });
-          //this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',ou: ''};
-          //this.selectedOu = null;
-          //this.selectedOuViewInit = null;
+          this.sendData();
         }
       }
     }
@@ -187,5 +188,62 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
         }
       }
     }
+  }
+  private sendData(): void {
+    this.renderer.removeClass(this.loading.nativeElement, 'none');
+    this.data.ou = this.selectedOu.data
+    let dataSend: any = {
+      Name: `${this.data.apellidos}, ${this.data.nombre}`,
+      DisplayName: `${this.data.apellidos}, ${this.data.nombre}`,
+      GivenName: this.data.nombre,
+      Surname: this.data.apellidos,
+      Department: this.data.departamento,
+      Title: this.data.puestoTrabajo,
+      UserPrincipalName: `${this.data.nombre}.${this.data.apellidos}@${this.data.upn}`,
+      SamAccountName: `${this.data.nombre}.${this.data.apellidos}`,
+      Company: this.data.organizacion,
+      Office: this.data.oficina,
+      Path: this.data.ou,
+      EmailAddress: `${this.data.nombre}.${this.data.apellidos}@${this.data.upn}`,
+      Description: this.data.puestoTrabajo,
+      AccountPassword: this.data.password
+    };
+    this.ipcService.send('Get-ADUser', this.data.manager);
+    this.ipcService.removeAllListeners('Get-ADUser');
+    this.ipcService.on('Get-ADUser', (event, data) => {
+      if(data.response === 'Success') {
+        if(data.data.indexOf('DistinguishedName') > -1) {
+          dataSend = {...dataSend, Manager: data.data.DistinguishedName};
+          this.ipcService.send('Get-ADUser', this.data.copia);
+          this.ipcService.removeAllListeners('Get-ADUser');
+          this.ipcService.on('Get-ADUser', (event, args) => {
+            if(args.response === 'Success') {
+              if(args.data.indexOf('DistinguishedName') > -1) {
+                dataSend = {...dataSend, CopiaDe: args.data.DistinguishedName};
+                console.log(dataSend);
+              }else {
+                this.alert('Parece que el usuario que intentas copiar no existe en Active Directory');
+                this.renderer.addClass(this.manager.nativeElement, 'border__error');
+              }
+            }else {
+              this.alert('Ha habido un error al tratar de buscar al Copia De referenciado/a. Por favor, inténtalo de nuevo o contacta con Soporte');
+              this.renderer.addClass(this.copia.nativeElement, 'border__error');
+            }
+          });
+          data.data = JSON.parse(data.data);
+        }else {
+          this.alert('Parece que el manager referenciado no existe en Active Directory');
+          this.renderer.addClass(this.manager.nativeElement, 'border__error');
+        }
+      }else {
+        this.alert('Ha habido un error al tratar de buscar al manager referenciado. Por favor, inténtalo de nuevo o contacta con Soporte');
+        this.renderer.addClass(this.manager.nativeElement, 'border__error');
+      }
+      console.log(data);
+      this.renderer.addClass(this.loading.nativeElement, 'none');
+    });
+    //this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',ou: ''};
+    //this.selectedOu = null;
+    //this.selectedOuViewInit = null;
   }
 }

@@ -17,7 +17,7 @@
 </div>
 <div class="createUsers animate__animated animate__fadeIn">
     <div class="container">
-        <div class="row mt-4">
+        <div class="row mt-5">
             <h2>Creación de Usuarios</h2>
         </div>
         <div class="row mt-2">
@@ -43,22 +43,20 @@
                         <input type="text" class="form-control" id="apellidos" placeholder="Kent" [(ngModel)]="data.apellidos" #apellidos (focus)="deleteBorder('apellidos')">
                     </div>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col">
                     <div class="mb-3">
                         <label for="oficina" class="form-label">Oficina</label>
                         <input type="text" class="form-control" id="oficina" placeholder="Metropolis" [(ngModel)]="data.oficina" #oficina (focus)="deleteBorder('oficina')">
                     </div>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col">
                     <div class="mb-3">
                         <label for="puestoTrabajo" class="form-label">Puesto Trabajo</label>
                         <input type="text" class="form-control" id="puestoTrabajo" placeholder="Periodista" [(ngModel)]="data.puestoTrabajo" #puestoTrabajo (focus)="deleteBorder('puestoTrabajo')">
                     </div>
                 </div>
-            </div>
-            <div class="row">
                 <div class="col">
                     <div class="mb-3">
                         <label for="departamento" class="form-label">Departamento</label>
@@ -85,8 +83,28 @@
                         <input type="text" class="form-control" id="copia" placeholder="Lois.Lane@eu.hsi.local" [(ngModel)]="data.copia" #copia (focus)="deleteBorder('copia')">
                     </div>
                 </div>
+                <div class="col">
+                    <div class="mb-2">
+                        <label for="upn" class="form-label">Upn</label>
+                        <select name="upn" id="upn" class="form-control" [(ngModel)]="data.upn" #upn (focus)="deleteBorder('upn')">
+                            <option value="???">Seleccione Upn</option>
+                            <option value="henryschein.es">henryschein.es</option>
+                            <option value="henryschein.com">henryschein.com</option>
+                            <option value="henryschein.pt">henryschein.pt</option>
+                            <option value="dentalexpress.es">dentalexpress.es</option>
+                        </select>
+                    </div>
+                </div>
             </div>
             <div class="row">
+                <div class="col">
+                    <label for="password" class="form-label">Contraseña</label>
+                    <input type="text" class="form-control" placeholder="Contraseña..." [(ngModel)]="data.password" #password (focus)="deleteBorder('password')">
+                </div>
+                <div class="col"></div>
+                <div class="col"></div>
+            </div>
+            <div class="row mt-3">
                 <div class="d-grid gap-2">
                     <button class="btn btn-secondary" type="button" (click)="openOus()">Unidad Organizativa</button>
                 </div>
@@ -102,12 +120,12 @@
         </div>
     </div>
 </div>
-<!-- Modal -->
+<!-- Modal Ou -->
 <div class="modal fade" id="modalOu" data-bs-backdrop="static" #modalOu>
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">Unidad Organizativa</h1>
                 <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
             </div>
             <div class="modal-body">

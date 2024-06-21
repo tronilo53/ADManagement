@@ -67,11 +67,12 @@ function createPreload() {
         const path = 'src/assets/scripts/test.ps1';
         execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path],(error, stdout, stderr) => {
             if (error) {
-            appWin.webContents.send('getOusError', error.message);
-            console.log(error.message);
-            return;
+                if(store.get('ous')) {
+                    store.delete('ous');
+                }
+                appWin.webContents.send('getOusError', error.message);
+                return;
             }
-            console.log(stdout);
             if(store.get('ous')){
                 store.delete('ous');
                 store.set('ous', stdout);

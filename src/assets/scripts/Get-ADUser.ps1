@@ -8,20 +8,15 @@ $user = Get-ADUser -Filter {EmailAddress -eq $email} -Properties DistinguishedNa
 
 # Verificar si se encontró un usuario válido
 if ($user -eq $null) {
-    Write-Output "Usuario con correo electrónico '$email' no encontrado en Active Directory."
+    Write-Output "Usuario no encontrado en Active Directory."
 } else {
     # Obtener el DistinguishedName del usuario, si está presente
     $distinguishedName = $user.DistinguishedName
 
     if ($distinguishedName) {
-        # Función para escapar las barras invertidas en una cadena
-        function Escape-JsonString($string) {
-            return $string -replace '\\', '\\\\'
-        }
-
         # Convertir el resultado a JSON con formato adecuado
         $jsonResult = @{
-            DistinguishedName = Escape-JsonString $distinguishedName
+            DistinguishedName = $distinguishedName
         } | ConvertTo-Json -Depth 1 -Compress
 
         # Imprimir el resultado JSON
