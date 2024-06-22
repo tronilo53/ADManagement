@@ -10,6 +10,9 @@ import Store from "electron-store";
 const { autoUpdater } = pkg;
 const store = new Store();
 
+/**
+ * * Deshabilitar la aceleración por Hardware de electron
+ */
 app.disableHardwareAcceleration();
 
 /**
@@ -37,9 +40,10 @@ let menuTemplateDev = [
 ];
 
 /**
- * * Función de ventana Principal y Preload
+ * * Función de ventana Preload
  */
 function createPreload() {
+    //Instancia de una nueva ventana
     appPrelaod = new BrowserWindow(
         {
             width: 600, 
@@ -55,36 +59,53 @@ function createPreload() {
             alwaysOnTop: true
         }
     );
+    //Si estamos en modo de desarrollo...
     if(isDev) {
         appPrelaod.setIcon( './src/assets/favicon.png' );
         appPrelaod.loadURL( 'http://localhost:4200/#/Preload' );
         //appPrelaod.webContents.openDevTools({mode: 'detach'});
+    //Si estamos en modo de producción...
     }else {
         appPrelaod.setIcon( 'resources/app/src/assets/favicon.png' );
         appPrelaod.loadURL( `file://${ __dirname }/dist/index.html#/Preload` );
     }
+    //Cuando la ventana está lista para ser mostrada...
     appPrelaod.once( "ready-to-show", () => {
+        //Variable con la ruta del script de Powershell
         const path = 'src/assets/scripts/test.ps1';
+        //Se llama al script de powershell configurando los parámetros requeridos
         execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path],(error, stdout, stderr) => {
+            //Si existe un error...
             if (error) {
-                if(store.get('ous')) {
-                    store.delete('ous');
-                }
+                //Si existe un JSON llamado 'ous' lo elimina
+                if(store.get('ous')) store.delete('ous');
+                //Manda por el canal 'getOusError' el error
                 appWin.webContents.send('getOusError', error.message);
+                //Sale de la ejecución
                 return;
             }
+            //Si el resultado es satisfactorio y existe un JSON llamado 'ous'...
             if(store.get('ous')){
+                //Elimina el JSON
                 store.delete('ous');
+                //Establece un nuevo JSON llamado 'ous' guardando las Unidades Organizativas
                 store.set('ous', stdout);
+            //Si no existe un JSON llamado 'ous' lo crea guardando las Unidades Organizativas
             }else store.set('ous', stdout);
+            //Cierra la ventana de Preload
             appPrelaod.close();
-            //autoUpdater.checkForUpdates();
+            //Crea la ventana principal
             createHome();
         });
     });
+    //Cuando se llama a .close() la ventana Preload se cierra
     appPrelaod.on( "closed", () => appPrelaod = null );
 }
+/**
+ * * Función de ventana principal
+ */
 function createHome() {
+    //Instancia para una nueva ventana
     appWin = new BrowserWindow(
         { 
             width: 950, 
@@ -96,28 +117,31 @@ function createHome() {
                 nodeIntegration: true 
             }
         });
+    //Si se está en modo de desarrollo...
     if(isDev) {
         appWin.setIcon( './src/assets/favicon.png' );
         const menuDev = Menu.buildFromTemplate( menuTemplateDev );
         appWin.setMenu( menuDev );
         appWin.loadURL( 'http://localhost:4200/' );
         appWin.webContents.openDevTools({mode: 'detach'});
+    //Si se está en modo de producción...
     }else {
         appWin.setIcon( 'resources/app/src/assets/favicon.png' );
         appWin.loadURL( `file://${ __dirname }/dist/index.html` );
     }
+    //Cuando la ventana está lista para ser mostrada...
     appWin.once( "ready-to-show", () => {
+        //Pone a la escucha la comprobación de actualizaciones
         //checks();
     });
+    //Cuando se llama a .close() la ventana principal se cierra
     appWin.on( "closed", () => appWin = null );
 };
 
 /**
  * * Preparar la App
  */
-app.whenReady().then( () => {
-    createPreload();
-});
+app.whenReady().then( () => createPreload() );
 
 /**
  * * Acciones para cerrar la App en MacOs
@@ -129,13 +153,16 @@ app.on( "window-all-closed", () => {
 /**
  * * Comunicación entre procesos
  */
+//Cierra la ventana de Preload
 ipcMain.on('closePreload', (event, args) => {
     appPrelaod.close();
     createHome();
 });
+//Obtiene las Unidades Organizativas
 ipcMain.on('getOus', (event, args) => {
     event.sender.send('getOus', store.get('ous'));
 });
+//Obtiene un usuario de AD
 ipcMain.on('Get-ADUser', (event, data) => {
     const path = 'src/assets/scripts/Get-ADUser.ps1';
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-email', data],(error, stdout, stderr) => {
@@ -146,9 +173,6 @@ ipcMain.on('Get-ADUser', (event, data) => {
         event.sender.send('Get-ADUser', { response: 'Success', data: stdout });
     });
 });
-
-// Maneja los eventos de IPC desde la interfaz de usuario
-
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());
 //DESCARGAR ACTUALIZACION
