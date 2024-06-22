@@ -72,7 +72,7 @@ function createPreload() {
     //Cuando la ventana está lista para ser mostrada...
     appPrelaod.once( "ready-to-show", () => {
         //Variable con la ruta del script de Powershell
-        const path = 'src/assets/scripts/test.ps1';
+        const path = 'src/assets/scripts/Get-ADOrganizationalUnit.ps1';
         //Se llama al script de powershell configurando los parámetros requeridos
         execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path],(error, stdout, stderr) => {
             //Si existe un error...
@@ -182,6 +182,16 @@ ipcMain.on('Get-ADGroup', (event, data) => {
             return;
         }
         event.sender.send('Get-ADGroup', { response: 'Success', data: stdout });
+    });
+});
+ipcMain.on('New-ADUser', (event, data) => {
+    const path = 'src/assets/scripts/New-ADUser.ps1';
+    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-MyObject', data],(error, stdout, stderr) => {
+        if(error) {
+            event.sender.send('New-ADUser', { response: 'Error', data: error.message });
+            return;
+        }
+        event.sender.send('New-ADUser', { response: 'Success', data: stdout });
     });
 });
 //CERRAR APLICACIÓN

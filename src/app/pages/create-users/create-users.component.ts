@@ -316,6 +316,28 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * *Function: Se crea el usuario
+   * @param object Objeto temporal con los datos
+   */
+  private newADUser(object: any): void {
+    this.ipcService.send('New-ADUser', object);
+    this.ipcService.removeAllListeners('New-ADUser');
+    this.ipcService.on('New-ADUser', (event, argsNew) => {
+      console.log(argsNew);
+      //Se resetean todos los campos
+      //this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',upn: '???',password: '',ou: ''};
+      //Se resetea la selección actual de la OU
+      //this.selectedOu = null;
+      //Se resetea la Seleccion(Vista) de la OU
+      //this.selectedOuViewInit = null;
+      //Se oculta el Loading
+      this.renderer.addClass(this.loading.nativeElement, 'none');
+      //Se detectan los cambios
+      this.cd.detectChanges();
+    });
+  }
+
+  /**
    * *Function: obtiene los grupos donde está el usuario de 'CopiaDe'
    * @param distinguishedName DistinguishedName del usuario de 'CopiaDe'
    */
@@ -328,18 +350,10 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
       if(argsGroups.response === 'Success') {
         //Si se encuentran grupos...
         if(argsGroups.data.indexOf('DistinguishedName') > -1) {
+          //Se modifica el objeto temporal añadiendo los grupos
           object = {...object, Groups: JSON.parse(argsGroups.data)};
-          console.log(object);
-          //Se resetean todos los campos
-          this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',upn: '???',password: '',ou: ''};
-          //Se resetea la selección actual de la OU
-          this.selectedOu = null;
-          //Se resetea la Seleccion(Vista) de la OU
-          this.selectedOuViewInit = null;
-          //Se oculta el Loading
-          this.renderer.addClass(this.loading.nativeElement, 'none');
-          //Se detectan los cambios
-          this.cd.detectChanges();
+          //Llamamos a la funcion para crear el usuario
+          this.newADUser(object);
         //Si no se encuentran grupos...
         }else {
           //Se oculta el Loading
