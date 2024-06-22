@@ -18,7 +18,7 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
   /**
    * * Expresiones regulares
    */
-  private regExEmail: RegExp = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/;
+  private regExEmail: RegExp = /^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
   private regExPassword: RegExp = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>-])[A-Za-z\d!@#$%^&*(),.?":{}|<>-]{8,}$/;
 
   /**
@@ -149,8 +149,18 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
       }else {
         //Si no se ha elegido una unidad organizativa...
         if(!this.selectedOu) this.alert('La Unidad Organizativa de destino es requerida');
-        //Si se ha elegido una unidad Organizativa Se empiezan a tratar los datos.
-        else this.processData();
+        //Si se ha elegido una unidad Organizativa...
+        else {
+          //Si es un nombre compuesto...
+          if(this.data.nombre.indexOf(' ') > -1) {
+            //Se guarda en 'newName' la modificacion del nombre
+            const newName: string = this.data.nombre.replace(' ', '');
+            //Se empiezan a tratar los datos pasando por parámetro el nombre modificado
+            this.processData(newName);
+          }
+          //Si no es un nombre compuesto se empiezan a tratar los datos de forma normal
+          else this.processData();
+        }
       }
     }
   }
@@ -307,8 +317,9 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
 
   /**
    * *Function: Trata los datos del formulario
+   * @param newName Opcional - Nombre modificado si es compuesto
    */
-  private processData(): void {
+  private processData(newName?: string): void {
     //Muestra el Loading
     this.renderer.removeClass(this.loading.nativeElement, 'none');
     //Guarda la OU elegida
@@ -321,12 +332,12 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
       Surname: this.data.apellidos,
       Department: this.data.departamento,
       Title: this.data.puestoTrabajo,
-      UserPrincipalName: `${this.data.nombre}.${this.data.apellidos}@${this.data.upn}`,
-      SamAccountName: `${this.data.nombre}.${this.data.apellidos}`,
+      UserPrincipalName: newName ? `${newName}.${this.data.apellidos}@${this.data.upn}` : `${this.data.nombre}.${this.data.apellidos}@${this.data.upn}`,
+      SamAccountName: newName ? `${newName}.${this.data.apellidos}` : `${this.data.nombre}.${this.data.apellidos}`,
       Company: this.data.organizacion,
       Office: this.data.oficina,
       Path: this.data.ou,
-      EmailAddress: `${this.data.nombre}.${this.data.apellidos}@${this.data.upn}`,
+      EmailAddress: newName ? `${newName}.${this.data.apellidos}@${this.data.upn}` : `${this.data.nombre}.${this.data.apellidos}@${this.data.upn}`,
       Description: this.data.puestoTrabajo,
       AccountPassword: this.data.password
     };
