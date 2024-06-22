@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, NgZone, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { TreeNode } from 'primeng/api';
 
 import Swal from 'sweetalert2';
@@ -52,7 +52,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
   constructor(
     private renderer: Renderer2,
     private ipcService: IpcService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngAfterViewInit(): void {
@@ -213,37 +214,41 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     this.ipcService.on('Get-ADUser', (event, data) => {
       if(data.response === 'Success') {
         if(data.data.indexOf('DistinguishedName') > -1) {
-          dataSend = {...dataSend, Manager: data.data.DistinguishedName};
+          dataSend = {...dataSend, Manager: JSON.parse(data.data).DistinguishedName};
           this.ipcService.send('Get-ADUser', this.data.copia);
           this.ipcService.removeAllListeners('Get-ADUser');
           this.ipcService.on('Get-ADUser', (event, args) => {
             if(args.response === 'Success') {
               if(args.data.indexOf('DistinguishedName') > -1) {
-                dataSend = {...dataSend, CopiaDe: args.data.DistinguishedName};
+                dataSend = {...dataSend, CopiaDe: JSON.parse(args.data).DistinguishedName};
                 console.log(dataSend);
+                this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',upn: '???',password: '',ou: ''};
+                this.selectedOu = null;
+                this.selectedOuViewInit = null;
+                this.cd.detectChanges();
+                this.renderer.addClass(this.loading.nativeElement, 'none');
               }else {
+                this.renderer.addClass(this.loading.nativeElement, 'none');
                 this.alert('Parece que el usuario que intentas copiar no existe en Active Directory');
-                this.renderer.addClass(this.manager.nativeElement, 'border__error');
+                this.renderer.addClass(this.copia.nativeElement, 'border__error');
               }
             }else {
+              this.renderer.addClass(this.loading.nativeElement, 'none');
               this.alert('Ha habido un error al tratar de buscar al Copia De referenciado/a. Por favor, inténtalo de nuevo o contacta con Soporte');
               this.renderer.addClass(this.copia.nativeElement, 'border__error');
             }
           });
-          data.data = JSON.parse(data.data);
         }else {
+          this.renderer.addClass(this.loading.nativeElement, 'none');
           this.alert('Parece que el manager referenciado no existe en Active Directory');
           this.renderer.addClass(this.manager.nativeElement, 'border__error');
         }
       }else {
+        this.renderer.addClass(this.loading.nativeElement, 'none');
         this.alert('Ha habido un error al tratar de buscar al manager referenciado. Por favor, inténtalo de nuevo o contacta con Soporte');
         this.renderer.addClass(this.manager.nativeElement, 'border__error');
       }
-      console.log(data);
-      this.renderer.addClass(this.loading.nativeElement, 'none');
+      //console.log(data);
     });
-    //this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',ou: ''};
-    //this.selectedOu = null;
-    //this.selectedOuViewInit = null;
   }
 }
