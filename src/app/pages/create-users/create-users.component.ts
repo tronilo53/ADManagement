@@ -316,6 +316,52 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
   }
 
   /**
+   * *Function: obtiene los grupos donde está el usuario de 'CopiaDe'
+   * @param distinguishedName DistinguishedName del usuario de 'CopiaDe'
+   */
+  private getMemberOf(distinguishedName: string, object: any): void {
+    //ipc para obtener los grupos del usuario de 'CopiaDe'
+    this.ipcService.send('Get-ADGroup', distinguishedName);
+    this.ipcService.removeAllListeners('Get-ADGroup');
+    this.ipcService.on('Get-ADGroup', (event, argsGroups) => {
+      //Si la respuesta es satisfactoria...
+      if(argsGroups.response === 'Success') {
+        //Si se encuentran grupos...
+        if(argsGroups.data.indexOf('DistinguishedName') > -1) {
+          object = {...object, Groups: JSON.parse(argsGroups.data)};
+          console.log(object);
+          //Se resetean todos los campos
+          this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',upn: '???',password: '',ou: ''};
+          //Se resetea la selección actual de la OU
+          this.selectedOu = null;
+          //Se resetea la Seleccion(Vista) de la OU
+          this.selectedOuViewInit = null;
+          //Se oculta el Loading
+          this.renderer.addClass(this.loading.nativeElement, 'none');
+          //Se detectan los cambios
+          this.cd.detectChanges();
+        //Si no se encuentran grupos...
+        }else {
+          //Se oculta el Loading
+          this.renderer.addClass(this.loading.nativeElement, 'none');
+          //Se muestra una alerta
+          this.alert('Parece que el usuario de "CopiaDe" no está incluido en ningún grupo');
+          //Se pone el campo 'CopiaDe' en rojo
+          this.renderer.addClass(this.copia.nativeElement, 'border__error');
+        }
+      //Si la respuesta da error
+      }else {
+        //Se oculta el loading
+        this.renderer.addClass(this.loading.nativeElement, 'none');
+        //Se muestra una alerta
+        this.alert('Ha habido un error al tratar de buscar los grupos del usuario referenciado. Por favor, inténtalo de nuevo o contacta con Soporte');
+        //Se pone el campo 'CopiaDe' en rojo
+        this.renderer.addClass(this.copia.nativeElement, 'border__error');
+      }
+    });
+  }
+
+  /**
    * *Function: Trata los datos del formulario
    * @param newName Opcional - Nombre modificado si es compuesto
    */
@@ -361,18 +407,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
               if(args.data.indexOf('DistinguishedName') > -1) {
                 //Se modifica el objeto temporal añadiendo la OU de 'CopiaDe'
                 dataSend = {...dataSend, CopiaDe: JSON.parse(args.data).DistinguishedName};
-
-                console.log(dataSend);
-                //Se resetean todos los campos
-                this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',upn: '???',password: '',ou: ''};
-                //Se resetea la selección actual de la OU
-                this.selectedOu = null;
-                //Se resetea la Seleccion(Vista) de la OU
-                this.selectedOuViewInit = null;
-                //Se detectan los cambios
-                this.cd.detectChanges();
-                //Se oculta el Loading
-                this.renderer.addClass(this.loading.nativeElement, 'none');
+                //Llama a la funcion para obtener los grupos del usuario de 'CopiaDe'
+                this.getMemberOf(JSON.parse(args.data).DistinguishedName, dataSend);
               }else {
                 this.renderer.addClass(this.loading.nativeElement, 'none');
                 this.alert('Parece que el usuario que intentas copiar no existe en Active Directory');

@@ -173,6 +173,17 @@ ipcMain.on('Get-ADUser', (event, data) => {
         event.sender.send('Get-ADUser', { response: 'Success', data: stdout });
     });
 });
+//Obtiene los grupos de un usuario
+ipcMain.on('Get-ADGroup', (event, data) => {
+    const path = 'src/assets/scripts/Get-ADGroup.ps1';
+    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-distinguishedName', data],(error, stdout, stderr) => {
+        if(error) {
+            event.sender.send('Get-ADGroup', { response: 'Error', data: error.message });
+            return;
+        }
+        event.sender.send('Get-ADGroup', { response: 'Success', data: stdout });
+    });
+});
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());
 //DESCARGAR ACTUALIZACION
