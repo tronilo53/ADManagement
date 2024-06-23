@@ -278,6 +278,16 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     });
   }
 
+  private notification(): void {
+    Swal.fire({
+      position: 'center',
+      icon: "success",
+      title: "Usuario Creado Con Éxito",
+      showConfirmButton: false,
+      timer: 1500
+    });
+  }
+
   /**
    * *Function: Correción de JSON, Unidades organizativas
    * @param nodes Nodos a Corregir
@@ -326,9 +336,34 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     this.ipcService.on('New-ADUser', (event, argsNew) => {
       //Si la respuesta es satisfactoria...
       if(argsNew.response === 'Success') {
-        console.log(argsNew);
-        //Se oculta el loading
-        this.renderer.addClass(this.loading.nativeElement, 'none');
+        argsNew.data = argsNew.data.replace(/\s/g, '');
+        //Si se crea el usuario...
+        if(argsNew.data === '001') {
+          //Se resetean todos los campos
+          this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',upn: '???',password: '',ou: ''};
+          //Se resetea la selección actual de la OU
+          this.selectedOu = null;
+          //Se resetea la Seleccion(Vista) de la OU
+          this.selectedOuViewInit = null;
+          //Se oculta el Loading
+          this.renderer.addClass(this.loading.nativeElement, 'none');
+          //Se muestra una notificación
+          this.notification();
+          //Se detectan los cambios
+          this.cd.detectChanges();
+        //Si el usuario ya existe...
+        }else if(argsNew.data === '002') {
+          //Se oculta el loading
+          this.renderer.addClass(this.loading.nativeElement, 'none');
+          //Se muestra una alerta
+          this.alert('Este usuario ya existe en AD o el nombre de usuario es el mismo que alguno ya creado.');
+        //Si el usuario no se crea...
+        }else {
+          //Se oculta el loading
+          this.renderer.addClass(this.loading.nativeElement, 'none');
+          //Se muestra una alerta
+          this.alert('No se ha podido crear el usuario, inténtalo de nuevo o contacta con Soporte.');
+        }
       //Si la respuesta da error...
       }else {
         //Se oculta el loading
@@ -336,16 +371,6 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
         //Se muestra una alerta
         this.alert('Ha habido un error al crear el usuario en Active Directory. Por favor, inténtalo de nuevo o contacta con Soporte');
       }
-      //Se resetean todos los campos
-      //this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',upn: '???',password: '',ou: ''};
-      //Se resetea la selección actual de la OU
-      //this.selectedOu = null;
-      //Se resetea la Seleccion(Vista) de la OU
-      //this.selectedOuViewInit = null;
-      //Se oculta el Loading
-      this.renderer.addClass(this.loading.nativeElement, 'none');
-      //Se detectan los cambios
-      this.cd.detectChanges();
     });
   }
 

@@ -9,7 +9,7 @@ $userData = $MyObject | ConvertFrom-Json
 $filter = "SamAccountName -eq '$($userData.SamAccountName)'"
 
 if(Get-ADuser -Filter $filter) {
-    Write-Output "La cuenta '$($userData.SamAccountName)' Ya existe y no se creara"
+    Write-Output "002"
 }else {
     try {
         $newADUser = New-ADUser -Name $userData.Name `
@@ -26,19 +26,19 @@ if(Get-ADuser -Filter $filter) {
          -Path $userData.Path `
          -EmailAddress $userData.EmailAddress `
          -Description $userData.Description `
-         -AccountPassword (ConvertTo-SecureString $userData.AccountPassword -AsPlainText -Force) -Enabled $true -ChangePasswordAtLogon $false -PasswordNeverExpires $false -Verbose
+         -AccountPassword (ConvertTo-SecureString $userData.AccountPassword -AsPlainText -Force) -Enabled $true -ChangePasswordAtLogon $false -PasswordNeverExpires $false
          #Set-ADuser -Identity $userData.SamAccountName -Replace @{'extensionAttribute10'='EMEAadministration'}
          Set-ADuser -Identity $userData.SamAccountName -Replace @{'msDS-cloudExtensionAttribute10'='EMEAadministration'}
         foreach($group in $userData.Groups) {
-            Add-ADGroupMember -Identity $group.DistinguishedName -Members $userData.SamAccountName -Verbose
+            Add-ADGroupMember -Identity $group.DistinguishedName -Members $userData.SamAccountName
         }
 
-         Write-Output "El usuario se ha creado correctamente"
+         Write-Output "001"
     }catch {
         $createdUser = Get-ADUser -Filter $filter -ErrorAction SilentlyContinue
         if ($createdUser) {
             Remove-ADUser -Identity $createdUser -Confirm:$false -Verbose
         }
-        Write-Output 'Ha habido un error al crear el usuario en AD'
+        Write-Output '003'
     }
 }
