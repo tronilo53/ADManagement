@@ -320,10 +320,22 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
    * @param object Objeto temporal con los datos
    */
   private newADUser(object: any): void {
+    //ipc para crear el usuario en AD
     this.ipcService.send('New-ADUser', object);
     this.ipcService.removeAllListeners('New-ADUser');
     this.ipcService.on('New-ADUser', (event, argsNew) => {
-      console.log(argsNew);
+      //Si la respuesta es satisfactoria...
+      if(argsNew.response === 'Success') {
+        console.log(argsNew);
+        //Se oculta el loading
+        this.renderer.addClass(this.loading.nativeElement, 'none');
+      //Si la respuesta da error...
+      }else {
+        //Se oculta el loading
+        this.renderer.addClass(this.loading.nativeElement, 'none');
+        //Se muestra una alerta
+        this.alert('Ha habido un error al crear el usuario en Active Directory. Por favor, inténtalo de nuevo o contacta con Soporte');
+      }
       //Se resetean todos los campos
       //this.data = {...this.data,nombre: '',apellidos: '',oficina: '',puestoTrabajo: '',departamento: '',organizacion: '',manager: '',copia: '',upn: '???',password: '',ou: ''};
       //Se resetea la selección actual de la OU

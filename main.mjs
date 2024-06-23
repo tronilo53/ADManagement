@@ -186,7 +186,9 @@ ipcMain.on('Get-ADGroup', (event, data) => {
 });
 ipcMain.on('New-ADUser', (event, data) => {
     const path = 'src/assets/scripts/New-ADUser.ps1';
-    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-MyObject', data],(error, stdout, stderr) => {
+    const jsonData = JSON.stringify(data);
+    console.log(jsonData);
+    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-MyObject', jsonData],(error, stdout, stderr) => {
         if(error) {
             event.sender.send('New-ADUser', { response: 'Error', data: error.message });
             return;
