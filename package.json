@@ -17,12 +17,12 @@
         "owner": "tronilo53",
         "repo": "ADManagement",
         "private": true,
-        "token": "${GH_TOKEN}"
+        "token": "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"
       }
     },
     "asar": false,
     "nsis": {
-      "oneClick": true,
+      "oneClick": false,
       "perMachine": false,
       "allowElevation": true,
       "allowToChangeInstallationDirectory": false,
@@ -48,7 +48,7 @@
     "ng": "ng",
     "start": "electron .",
     "build": "ng build",
-    "electron": "ng build && electron .",
+    "build:electron": "ng build && electron-builder",
     "pub": "ng build && electron-builder -p always"
   },
   "private": true,
@@ -64,7 +64,6 @@
     "@ng-bootstrap/ng-bootstrap": "^17.0.0",
     "animate.css": "^4.1.1",
     "bootstrap": "^5.3.3",
-    "dotenv": "^16.4.5",
     "electron-is-dev": "^2.0.0",
     "electron-store": "^10.0.0",
     "electron-updater": "^5.3.0",
@@ -82,6 +81,7 @@
     "@angular-devkit/build-angular": "^18.0.4",
     "@angular/cli": "^18.0.4",
     "@angular/compiler-cli": "^18.0.0",
+    "@dotenvx/dotenvx": "^0.45.0",
     "@types/jasmine": "~5.1.0",
     "electron": "^31.0.1",
     "electron-builder": "^24.13.3",

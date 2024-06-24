@@ -6,36 +6,17 @@ import isDev from "electron-is-dev";
 import pkg from "electron-updater";
 import { execFile } from "child_process";
 import Store from "electron-store";
-import dotenv from 'dotenv';
+import path from 'path';
 
 const { autoUpdater } = pkg;
 const store = new Store();
-
-dotenv.config({ path: './.env' });
-
-const githubToken = process.env.GH_TOKEN;
-
-console.log('Token git: ', githubToken);
-console.log(process.env);
-
-
-/**
- * * Deshabilitar la aceleración por Hardware de electron
- */
-app.disableHardwareAcceleration();
+const __dirname = path.resolve();
 
 /**
  * * Propiedades de AutoUpdater
  */
 autoUpdater.autoDownload = false;
 autoUpdater.autoRunAppAfterInstall = true;
-autoUpdater.setFeedURL({
-    provider: 'github',
-    owner: 'tronilo53',
-    repo: 'ADManagement',
-    private: true,
-    token: githubToken
-  });
 
 /**
  * * Declaraciones de Variables
@@ -71,7 +52,7 @@ function createPreload() {
                 nodeIntegration: true 
             },
             frame: false,
-            transparent: true,
+            transparent: false,
             alwaysOnTop: true
         }
     );
@@ -83,12 +64,13 @@ function createPreload() {
     //Si estamos en modo de producción...
     }else {
         appPrelaod.setIcon( 'resources/app/src/assets/favicon.png' );
-        appPrelaod.loadURL( `file://${ __dirname }/dist/index.html#/Preload` );
+        appPrelaod.loadURL( `file://${ __dirname }/resources/app/dist/browser/index.html#/Preload` );
+        //appPrelaod.webContents.openDevTools({mode: 'detach'});
     }
     //Cuando la ventana está lista para ser mostrada...
     appPrelaod.once( "ready-to-show", () => {
         //Variables con las rutas del script de Powershell
-        const pathOu = 'src/assets/scripts/Get-ADOrganizationalUnit.ps1';
+        const pathOu = isDev ? 'src/assets/scripts/Get-ADOrganizationalUnit.ps1' : 'resources/app/src/assets/scripts/Get-ADOrganizationalUnit.ps1';
         execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
             //Si existe un error...
             if (error) {
@@ -145,12 +127,13 @@ function createHome() {
     //Si se está en modo de producción...
     }else {
         appWin.setIcon( 'resources/app/src/assets/favicon.png' );
-        appWin.loadURL( `file://${ __dirname }/dist/index.html` );
+        appWin.setMenu(null);
+        appWin.loadURL( `file://${ __dirname }/resources/app/dist/browser/index.html` );
     }
     //Cuando la ventana está lista para ser mostrada...
     appWin.once( "ready-to-show", () => {
         //Pone a la escucha la comprobación de actualizaciones
-        //autoUpdater.checkForUpdatesAndNotify();
+        autoUpdater.checkForUpdatesAndNotify();
     });
     //Cuando se llama a .close() la ventana principal se cierra
     appWin.on( "closed", () => appWin = null );
@@ -173,18 +156,13 @@ app.on( "window-all-closed", () => {
 /**
  * * Comunicación entre procesos
  */
-//Cierra la ventana de Preload
-ipcMain.on('closePreload', (event, args) => {
-    appPrelaod.close();
-    createHome();
-});
 //Obtiene las Unidades Organizativas
 ipcMain.on('getOus', (event, args) => {
     event.sender.send('getOus', store.get('ous'));
 });
 //Obtiene un usuario de AD
 ipcMain.on('Get-ADUser', (event, data) => {
-    const path = 'src/assets/scripts/Get-ADUser.ps1';
+    const path = isDev ? 'src/assets/scripts/Get-ADUser.ps1' : 'resources/app/src/assets/scripts/Get-ADUser.ps1';
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-email', data],(error, stdout, stderr) => {
         if(error) {
             event.sender.send('Get-ADUser', { response: 'Error', data: error.message });
@@ -195,7 +173,7 @@ ipcMain.on('Get-ADUser', (event, data) => {
 });
 //Obtiene los grupos de un usuario
 ipcMain.on('Get-ADGroup', (event, data) => {
-    const path = 'src/assets/scripts/Get-ADGroup.ps1';
+    const path = isDev ? 'src/assets/scripts/Get-ADGroup.ps1': 'resources/app/src/assets/scripts/Get-ADGroup.ps1';
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-distinguishedName', data],(error, stdout, stderr) => {
         if(error) {
             event.sender.send('Get-ADGroup', { response: 'Error', data: error.message });
@@ -205,7 +183,7 @@ ipcMain.on('Get-ADGroup', (event, data) => {
     });
 });
 ipcMain.on('New-ADUser', (event, data) => {
-    const path = 'src/assets/scripts/New-ADUser.ps1';
+    const path = isDev ? 'src/assets/scripts/New-ADUser.ps1' : 'resources/app/src/assets/scripts/New-ADUser.ps1';
     const jsonData = JSON.stringify(data);
     console.log(jsonData);
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-MyObject', jsonData],(error, stdout, stderr) => {
@@ -215,9 +193,6 @@ ipcMain.on('New-ADUser', (event, data) => {
         }
         event.sender.send('New-ADUser', { response: 'Success', data: stdout });
     });
-});
-ipcMain.on('getTokenGit', (event, data) => {
-    event.sender.send('getTokenGit', githubToken);
 });
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());
