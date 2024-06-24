@@ -7,8 +7,6 @@ import pkg from "electron-updater";
 import { execFile } from "child_process";
 import Store from "electron-store";
 import dotenv from 'dotenv';
-import path from 'path';
-import fs from 'fs';
 
 const { autoUpdater } = pkg;
 const store = new Store();
