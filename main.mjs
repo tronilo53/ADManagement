@@ -16,6 +16,7 @@ dotenv.config({ path: './.env' });
 const githubToken = process.env.GH_TOKEN;
 
 console.log('Token git: ', githubToken);
+console.log(process.env);
 
 
 /**
@@ -160,7 +161,6 @@ function createHome() {
  */
 app.whenReady().then( () => {
     createPreload();
-    console.log('Token Guardado: ', __dirname);
 });
 
 /**

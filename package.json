@@ -15,7 +15,9 @@
       "publish": {
         "provider": "github",
         "owner": "tronilo53",
-        "repo": "ADManagement"
+        "repo": "ADManagement",
+        "private": true,
+        "token": "${GH_TOKEN}"
       }
     },
     "asar": false,
