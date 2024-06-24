@@ -6,9 +6,19 @@ import isDev from "electron-is-dev";
 import pkg from "electron-updater";
 import { execFile } from "child_process";
 import Store from "electron-store";
+import dotenv from 'dotenv';
+import path from 'path';
+import fs from 'fs';
 
 const { autoUpdater } = pkg;
 const store = new Store();
+
+dotenv.config({ path: './.env' });
+
+const githubToken = process.env.GH_TOKEN;
+
+console.log('Token git: ', githubToken);
+
 
 /**
  * * Deshabilitar la aceleración por Hardware de electron
@@ -20,6 +30,13 @@ app.disableHardwareAcceleration();
  */
 autoUpdater.autoDownload = false;
 autoUpdater.autoRunAppAfterInstall = true;
+autoUpdater.setFeedURL({
+    provider: 'github',
+    owner: 'tronilo53',
+    repo: 'ADManagement',
+    private: true,
+    token: githubToken
+  });
 
 /**
  * * Declaraciones de Variables
@@ -71,16 +88,15 @@ function createPreload() {
     }
     //Cuando la ventana está lista para ser mostrada...
     appPrelaod.once( "ready-to-show", () => {
-        //Variable con la ruta del script de Powershell
-        const path = 'src/assets/scripts/Get-ADOrganizationalUnit.ps1';
-        //Se llama al script de powershell configurando los parámetros requeridos
-        execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path],(error, stdout, stderr) => {
+        //Variables con las rutas del script de Powershell
+        const pathOu = 'src/assets/scripts/Get-ADOrganizationalUnit.ps1';
+        execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
             //Si existe un error...
             if (error) {
                 //Si existe un JSON llamado 'ous' lo elimina
                 if(store.get('ous')) store.delete('ous');
                 //Manda por el canal 'getOusError' el error
-                appWin.webContents.send('getOusError', error.message);
+                appPrelaod.webContents.send('getOusError');
                 //Sale de la ejecución
                 return;
             }
@@ -92,10 +108,13 @@ function createPreload() {
                 store.set('ous', stdout);
             //Si no existe un JSON llamado 'ous' lo crea guardando las Unidades Organizativas
             }else store.set('ous', stdout);
-            //Cierra la ventana de Preload
-            appPrelaod.close();
-            //Crea la ventana principal
-            createHome();
+            appPrelaod.webContents.send('getOusSuccess');
+            setTimeout(() => {
+                //Cierra la ventana de Preload
+                appPrelaod.close();
+                //Crea la ventana principal
+                createHome();
+            }, 3000);
         });
     });
     //Cuando se llama a .close() la ventana Preload se cierra
@@ -132,7 +151,7 @@ function createHome() {
     //Cuando la ventana está lista para ser mostrada...
     appWin.once( "ready-to-show", () => {
         //Pone a la escucha la comprobación de actualizaciones
-        //checks();
+        //autoUpdater.checkForUpdatesAndNotify();
     });
     //Cuando se llama a .close() la ventana principal se cierra
     appWin.on( "closed", () => appWin = null );
@@ -141,7 +160,10 @@ function createHome() {
 /**
  * * Preparar la App
  */
-app.whenReady().then( () => createPreload() );
+app.whenReady().then( () => {
+    createPreload();
+    console.log('Token Guardado: ', __dirname);
+});
 
 /**
  * * Acciones para cerrar la App en MacOs
@@ -196,6 +218,9 @@ ipcMain.on('New-ADUser', (event, data) => {
         event.sender.send('New-ADUser', { response: 'Success', data: stdout });
     });
 });
+ipcMain.on('getTokenGit', (event, data) => {
+    event.sender.send('getTokenGit', githubToken);
+});
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());
 //DESCARGAR ACTUALIZACION
@@ -208,22 +233,18 @@ ipcMain.on( 'setVersion', ( event, args ) => event.sender.send( 'setVersion', { 
 /**
  * * Eventos de Actualizaciones Automáticas
  */
-let checks = () => {
-    autoUpdater.checkForUpdatesAndNotify();
-
-    autoUpdater.on( 'update-available', ( info ) => {
-        appWin.webContents.send( 'update_available' );
-    });
-    autoUpdater.on( 'update-not-available', () => {
-        appWin.webContents.send( 'update_not_available' );
-    });
-    autoUpdater.on( 'download-progress', ( progressObj ) => {
-        appWin.webContents.send( 'download_progress', Math.trunc( progressObj.percent ) );
-    });
-    autoUpdater.on( 'update-downloaded', () => {
-        appWin.webContents.send( 'update_downloaded' );
-    });
-    autoUpdater.on( 'error', ( error ) => {
-        appWin.webContents.send( 'error_update' );
-    });
-};
+autoUpdater.on( 'update-available', ( info ) => {
+    appWin.webContents.send( 'update_available' );
+});
+autoUpdater.on( 'update-not-available', () => {
+    appWin.webContents.send( 'update_not_available' );
+});
+autoUpdater.on( 'download-progress', ( progressObj ) => {
+    appWin.webContents.send( 'download_progress', Math.trunc( progressObj.percent ) );
+});
+autoUpdater.on( 'update-downloaded', () => {
+    appWin.webContents.send( 'update_downloaded' );
+});
+autoUpdater.on( 'error', ( error ) => {
+    appWin.webContents.send( 'error_update' );
+});
