@@ -16,8 +16,7 @@
         "provider": "github",
         "owner": "tronilo53",
         "repo": "ADManagement",
-        "private": true,
-        "token": "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"
+        "private": true
       }
     },
     "asar": false,
@@ -47,9 +46,9 @@
   "scripts": {
     "ng": "ng",
     "start": "electron .",
-    "build": "ng build",
-    "build:electron": "ng build && electron-builder",
-    "pub": "ng build && electron-builder -p always"
+    "prebuild": "powershell -NoProfile -ExecutionPolicy Bypass -File ./src/assets/scripts/Set-Token.ps1",
+    "build": "ng build && electron-builder",
+    "build:p": "ng build && electron-builder -p always"
   },
   "private": true,
   "dependencies": {

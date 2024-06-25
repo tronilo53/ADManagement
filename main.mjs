@@ -142,9 +142,7 @@ function createHome() {
 /**
  * * Preparar la App
  */
-app.whenReady().then( () => {
-    createPreload();
-});
+app.whenReady().then( () => createPreload());
 
 /**
  * * Acciones para cerrar la App en MacOs
