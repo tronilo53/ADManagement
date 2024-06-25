@@ -2,3 +2,25 @@
     width: 25rem;
     margin: 0 auto;
 }
+.loadDownload {
+    position: fixed;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.6);
+    width: 100%;
+    height: 100%;
+}
+.loadDownload .content-download {
+    position: absolute;
+    top: 32%;
+    left: 0;
+    right: 0;
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 1rem;
+}
+.none {
+    display: none;
+}
