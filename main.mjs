@@ -201,32 +201,6 @@ ipcMain.on( 'installApp', () => autoUpdater.quitAndInstall() );
 //OBTENER VERSION DE APP
 ipcMain.on( 'setVersion', ( event, args ) => event.sender.send( 'setVersion', { data: app.getVersion() } ) );
 
-ipcMain.on('update-available', (event,args) => {
-    event.sender.send('update-available');
-});
-ipcMain.on( 'downloadAppTest', (event, args) => {
-    event.sender.send( 'downloadAppTest' );
-});
-ipcMain.on('download-progress', (event, args) => {
-    let progress = 0;
-    const total = 1000000; // Tamaño total del archivo simulado en bytes
-    const interval = setInterval(() => {
-        if (progress >= total) {
-            clearInterval(interval);
-        }else {
-            progress += 100000; // Incrementar progreso simulado
-            const progressObj = {
-                total,
-                delta: 100000,
-                transferred: progress,
-                percent: (progress / total) * 100,
-                bytesPerSecond: 200000 // Velocidad de descarga simulada en bytes por segundo
-            };
-            event.sender.send('download-progress', progressObj);
-        }
-    }, 1000); // Actualizar cada segundo
-});
-
 /**
  * * Eventos de Actualizaciones Automáticas
  */

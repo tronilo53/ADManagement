@@ -18,45 +18,44 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
-    this.ipcService.send('update-available');
-    this.ipcService.removeAllListeners('update-available');
-    this.ipcService.on('update-available', (event, data) => {
-      this.updateNotify();
+    this.ipcService.on('update_available', (event, data) => {
+      this.update_available();
+    });
+    this.ipcService.on('download_progress', (event, progressObj) => {
+      this.renderer.removeClass(this.loadingProcess.nativeElement, 'none');
+      this.renderer.setStyle(this.process.nativeElement, 'width', `${progressObj}%`);
+      this.renderer.setProperty(this.process.nativeElement, 'innerHTML', `${progressObj}%`);
+    });
+    this.ipcService.on('update_downloaded', (event, data) => {
+      this.ipcService.send('installApp');
+      this.ipcService.removeAllListeners('installApp');
+    });
+    this.ipcService.on('error_update', (event, data) => {
+      Swal.fire({
+        icon: 'error',
+        text: 'Ha habido un error al descargar la actualización',
+        allowOutsideClick: false
+      });
     });
   }
   ngOnInit(): void {
     
   }
 
-  private updateNotify(): void {
+  private update_available(): void {
     Swal.fire({
       title: "Actualización Disponible!",
-      text: "Hay una actualización disponible, ¿Quieres instalarla ahora?",
+      text: "Hay una actualización disponible, ¿Quieres descargarla ahora?",
       icon: "info",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Si, instalar ahora"
+      confirmButtonText: "Si, descargar ahora"
     }).then((result) => {
       if (result.isConfirmed) {
-        this.downloadUpdate();
+        this.ipcService.send('downloadApp');
+        this.ipcService.removeAllListeners('downloadApp');
       }
-    });
-  }
-  private downloadUpdate(): void {
-    this.ipcService.send('downloadAppTest');
-    this.ipcService.removeAllListeners('downloadAppTest');
-    this.ipcService.on('downloadAppTest', (event, data) => {
-      this.downloadProgress();
-    });
-  }
-  private downloadProgress(): void {
-    this.renderer.removeClass(this.loadingProcess.nativeElement, 'none');
-    this.ipcService.send('download-progress');
-    this.ipcService.removeAllListeners('download-progress');
-    this.ipcService.on('download-progress', (event, progressObj) => {
-      this.renderer.setStyle(this.process.nativeElement, 'width', `${progressObj.percent}%`);
-      this.renderer.setProperty(this.process.nativeElement, 'innerHTML', `${progressObj.percent}%`);
     });
   }
 }
