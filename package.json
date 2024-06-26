@@ -22,9 +22,9 @@
     "asar": false,
     "nsis": {
       "oneClick": false,
-      "perMachine": false,
+      "perMachine": true,
       "allowElevation": true,
-      "allowToChangeInstallationDirectory": false,
+      "allowToChangeInstallationDirectory": true,
       "removeDefaultUninstallWelcomePage": false,
       "installerIcon": "build/installerIcon.ico",
       "uninstallerIcon": "build/uninstallerIcon.ico",
@@ -33,11 +33,12 @@
       "createStartMenuShortcut": true,
       "menuCategory": false,
       "shortcutName": "ADManagement",
-      "runAfterFinish": false
+      "runAfterFinish": false,
+      "include": "build/customInstaller.nsh"
     }
   },
   "name": "ADManagement",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "main": "main.mjs",
   "type": "module",
   "license": "MIT",
