@@ -9,6 +9,9 @@ import Swal from 'sweetalert2';
 })
 export class HomeComponent implements OnInit, AfterViewInit {
 
+  /**
+   * *Propiedades de la clase
+   */
   @ViewChild('loadingProcess') loadingProcess: ElementRef;
   @ViewChild('process') process: ElementRef;
   public version: string = '';
@@ -20,18 +23,23 @@ export class HomeComponent implements OnInit, AfterViewInit {
   ) {}
 
   ngAfterViewInit(): void {
+    //Obtener la versión de la App
     this.setVersion();
+    //Escucha si hay una actualización disponible
     this.ipcService.on('update_available', (event, data) => {
       this.update_available();
     });
+    //Escucha el progreso de la descarga
     this.ipcService.on('download_progress', (event, progressObj) => {
       this.renderer.setStyle(this.process.nativeElement, 'width', `${progressObj}%`);
       this.renderer.setProperty(this.process.nativeElement, 'innerHTML', `${progressObj}%`);
     });
+    //escucha si la actualización se ha descargado
     this.ipcService.on('update_downloaded', (event, data) => {
       this.ipcService.send('installApp');
       this.ipcService.removeAllListeners('installApp');
     });
+    //Escucha si hay algun error en la actualización
     this.ipcService.on('error_update', (event, data) => {
       Swal.fire({
         icon: 'error',
@@ -44,6 +52,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
     
   }
 
+  /**
+   * *Function: Muestra una alerta de actualización disponible
+   */
   private update_available(): void {
     Swal.fire({
       title: "Actualización Disponible!",
@@ -52,20 +63,31 @@ export class HomeComponent implements OnInit, AfterViewInit {
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
+      cancelButtonText: 'Cancelar',
       confirmButtonText: "Si, descargar ahora"
     }).then((result) => {
+      //Si se clickea a 'Si, descargar ahora'...
       if (result.isConfirmed) {
+        //Se muestra la ventana de descarga
         this.renderer.removeClass(this.loadingProcess.nativeElement, 'none');
+        //Se envia ipc para descargar la App
         this.ipcService.send('downloadApp');
         this.ipcService.removeAllListeners('downloadApp');
       }
     });
   }
+
+  /**
+   * *Function: Obtiene la versión actual de la App
+   */
   private setVersion(): void {
+    //ipc para obtener la versión actual de la App
     this.ipcService.send('setVersion');
     this.ipcService.removeAllListeners('setVersion');
     this.ipcService.on('setVersion', (event, args) => {
+      //Guarda la version en la variable 'version'
       this.version = args.data;
+      //Detecta los cambios en la vista
       this.cd.detectChanges();
     });
   }
