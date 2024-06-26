@@ -25,7 +25,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.update_available();
     });
     this.ipcService.on('download_progress', (event, progressObj) => {
-      this.renderer.removeClass(this.loadingProcess.nativeElement, 'none');
       this.renderer.setStyle(this.process.nativeElement, 'width', `${progressObj}%`);
       this.renderer.setProperty(this.process.nativeElement, 'innerHTML', `${progressObj}%`);
     });
@@ -56,6 +55,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       confirmButtonText: "Si, descargar ahora"
     }).then((result) => {
       if (result.isConfirmed) {
+        this.renderer.removeClass(this.loadingProcess.nativeElement, 'none');
         this.ipcService.send('downloadApp');
         this.ipcService.removeAllListeners('downloadApp');
       }
