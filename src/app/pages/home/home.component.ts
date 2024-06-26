@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { IpcService } from '../../services/ipc.service';
 import Swal from 'sweetalert2';
 
@@ -11,13 +11,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
 
   @ViewChild('loadingProcess') loadingProcess: ElementRef;
   @ViewChild('process') process: ElementRef;
+  public version: string = '';
 
   constructor(
     private ipcService: IpcService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private cd: ChangeDetectorRef
   ) {}
 
   ngAfterViewInit(): void {
+    this.setVersion();
     this.ipcService.on('update_available', (event, data) => {
       this.update_available();
     });
@@ -56,6 +59,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
         this.ipcService.send('downloadApp');
         this.ipcService.removeAllListeners('downloadApp');
       }
+    });
+  }
+  private setVersion(): void {
+    this.ipcService.send('setVersion');
+    this.ipcService.removeAllListeners('setVersion');
+    this.ipcService.on('setVersion', (event, args) => {
+      this.version = args.data;
+      this.cd.detectChanges();
     });
   }
 }

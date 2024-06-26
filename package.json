@@ -37,7 +37,7 @@
     }
   },
   "name": "ADManagement",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "main.mjs",
   "type": "module",
   "license": "MIT",

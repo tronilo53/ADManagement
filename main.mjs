@@ -199,7 +199,10 @@ ipcMain.on( 'downloadApp', () => autoUpdater.downloadUpdate() );
 //INSTALAR ACTUALIZACION
 ipcMain.on( 'installApp', () => autoUpdater.quitAndInstall() );
 //OBTENER VERSION DE APP
-ipcMain.on( 'setVersion', ( event, args ) => event.sender.send( 'setVersion', { data: app.getVersion() } ) );
+ipcMain.on( 'setVersion', ( event, args ) => {
+    event.sender.send( 'setVersion', { data: app.getVersion() } );
+    console.log('Version: ', app.getVersion());
+});
 
 /**
  * * Eventos de Actualizaciones Automáticas
