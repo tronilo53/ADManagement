@@ -47,7 +47,6 @@
   "scripts": {
     "ng": "ng",
     "start": "electron .",
-    "prebuild": "powershell -NoProfile -ExecutionPolicy Bypass -File ./src/assets/scripts/Set-Token.ps1",
     "build": "ng build && electron-builder",
     "build:p": "ng build && electron-builder -p always"
   },

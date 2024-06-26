@@ -201,7 +201,6 @@ ipcMain.on( 'installApp', () => autoUpdater.quitAndInstall() );
 //OBTENER VERSION DE APP
 ipcMain.on( 'setVersion', ( event, args ) => {
     event.sender.send( 'setVersion', { data: app.getVersion() } );
-    console.log('Version: ', app.getVersion());
 });
 
 /**
