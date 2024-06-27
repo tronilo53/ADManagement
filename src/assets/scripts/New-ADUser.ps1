@@ -27,8 +27,8 @@ if(Get-ADuser -Filter $filter) {
          -EmailAddress $userData.EmailAddress `
          -Description $userData.Description `
          -AccountPassword (ConvertTo-SecureString $userData.AccountPassword -AsPlainText -Force) -Enabled $true -ChangePasswordAtLogon $false -PasswordNeverExpires $false
-         #Set-ADuser -Identity $userData.SamAccountName -Replace @{'extensionAttribute10'='EMEAadministration'}
-         Set-ADuser -Identity $userData.SamAccountName -Replace @{'msDS-cloudExtensionAttribute10'='EMEAadministration'}
+         Set-ADuser -Identity $userData.SamAccountName -Replace @{'extensionAttribute10'='EMEAadministration'}
+         #Set-ADuser -Identity $userData.SamAccountName -Replace @{'msDS-cloudExtensionAttribute10'='EMEAadministration'}
         foreach($group in $userData.Groups) {
             Add-ADGroupMember -Identity $group.DistinguishedName -Members $userData.SamAccountName
         }

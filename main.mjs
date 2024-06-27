@@ -12,6 +12,10 @@ const { autoUpdater } = pkg;
 const store = new Store();
 const __dirname = path.resolve();
 
+const PATH_ASSETS_PROD = path.join(__dirname, 'resources', 'app', 'src', 'assets');
+const PATH_ASSETS_DEV = path.join(__dirname, 'src', 'assets');
+const PATH_DIST_PROD = path.join(__dirname, 'resources', 'app', 'dist');
+
 /**
  * * Propiedades de AutoUpdater
  */
@@ -35,6 +39,7 @@ let menuTemplateDev = [
         ]
     }
 ];
+const menuDev = Menu.buildFromTemplate( menuTemplateDev );
 
 /**
  * * Función de ventana Preload
@@ -57,20 +62,13 @@ function createPreload() {
         }
     );
     //Si estamos en modo de desarrollo...
-    if(isDev) {
-        appPrelaod.setIcon( './src/assets/favicon.png' );
-        appPrelaod.loadURL( 'http://localhost:4200/#/Preload' );
-        //appPrelaod.webContents.openDevTools({mode: 'detach'});
-    //Si estamos en modo de producción...
-    }else {
-        appPrelaod.setIcon( 'resources/app/src/assets/favicon.png' );
-        appPrelaod.loadURL( `file://${ __dirname }/resources/app/dist/browser/index.html#/Preload` );
-        //appPrelaod.webContents.openDevTools({mode: 'detach'});
-    }
+    appPrelaod.setIcon(isDev ? `${PATH_ASSETS_DEV}/favicon.png` : `${PATH_ASSETS_PROD}/favicon.png`);
+    appPrelaod.loadURL(isDev ? 'http://localhost:4200/#/Preload' : `file://${PATH_DIST_PROD}/browser/index.html#/Preload`);
+    
     //Cuando la ventana está lista para ser mostrada...
     appPrelaod.once( "ready-to-show", () => {
         //Variables con las rutas del script de Powershell
-        const pathOu = isDev ? 'src/assets/scripts/Get-ADOrganizationalUnit.ps1' : 'resources/app/src/assets/scripts/Get-ADOrganizationalUnit.ps1';
+        const pathOu = isDev ? `${PATH_ASSETS_DEV}/scripts/Get-ADOrganizationalUnit.ps1` : `${PATH_ASSETS_PROD}/scripts/Get-ADOrganizationalUnit.ps1`;
         execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
             //Si existe un error...
             if (error) {
@@ -118,18 +116,10 @@ function createHome() {
             }
         });
     //Si se está en modo de desarrollo...
-    if(isDev) {
-        appWin.setIcon( './src/assets/favicon.png' );
-        const menuDev = Menu.buildFromTemplate( menuTemplateDev );
-        appWin.setMenu( menuDev );
-        appWin.loadURL( 'http://localhost:4200/' );
-        //appWin.webContents.openDevTools({mode: 'detach'});
-    //Si se está en modo de producción...
-    }else {
-        appWin.setIcon( 'resources/app/src/assets/favicon.png' );
-        appWin.setMenu(null);
-        appWin.loadURL( `file://${ __dirname }/resources/app/dist/browser/index.html` );
-    }
+    appWin.setIcon(isDev ? `${PATH_ASSETS_DEV}/favicon.png` : `${PATH_ASSETS_PROD}/favicon.png`);
+    appWin.setMenu(isDev ? menuDev : null);
+    appWin.loadURL(isDev ? 'http://localhost:4200/' : `${PATH_DIST_PROD}/browser/index.html`);
+    
     //Cuando la ventana está lista para ser mostrada...
     appWin.once( "ready-to-show", () => {
         //Pone a la escucha la comprobación de actualizaciones
@@ -160,7 +150,7 @@ ipcMain.on('getOus', (event, args) => {
 });
 //Obtiene un usuario de AD
 ipcMain.on('Get-ADUser', (event, data) => {
-    const path = isDev ? 'src/assets/scripts/Get-ADUser.ps1' : 'resources/app/src/assets/scripts/Get-ADUser.ps1';
+    const path = isDev ? `${PATH_ASSETS_DEV}/scripts/Get-ADUser.ps1` : `${PATH_ASSETS_PROD}/scripts/Get-ADUser.ps1`;
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-email', data],(error, stdout, stderr) => {
         if(error) {
             event.sender.send('Get-ADUser', { response: 'Error', data: error.message });
@@ -171,7 +161,7 @@ ipcMain.on('Get-ADUser', (event, data) => {
 });
 //Obtiene los grupos de un usuario
 ipcMain.on('Get-ADGroup', (event, data) => {
-    const path = isDev ? 'src/assets/scripts/Get-ADGroup.ps1': 'resources/app/src/assets/scripts/Get-ADGroup.ps1';
+    const path = isDev ? `${PATH_ASSETS_DEV}/scripts/Get-ADGroup.ps1` : `${PATH_ASSETS_PROD}/scripts/Get-ADGroup.ps1`;
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-distinguishedName', data],(error, stdout, stderr) => {
         if(error) {
             event.sender.send('Get-ADGroup', { response: 'Error', data: error.message });
@@ -181,7 +171,7 @@ ipcMain.on('Get-ADGroup', (event, data) => {
     });
 });
 ipcMain.on('New-ADUser', (event, data) => {
-    const path = isDev ? 'src/assets/scripts/New-ADUser.ps1' : 'resources/app/src/assets/scripts/New-ADUser.ps1';
+    const path = isDev ? `${PATH_ASSETS_DEV}/scripts/New-ADUser.ps1` : `${PATH_ASSETS_PROD}/scripts/New-ADUser.ps1`;
     const jsonData = JSON.stringify(data);
     console.log(jsonData);
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-MyObject', jsonData],(error, stdout, stderr) => {
