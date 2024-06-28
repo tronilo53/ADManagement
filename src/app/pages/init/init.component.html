@@ -1,0 +1,62 @@
+<div class="init animate__animated animate__fadeIn">
+    <p-stepper [linear]="true">
+        <p-stepperPanel header="Bienvenido/a">
+            <ng-template pTemplate="content" let-nextCallback="nextCallback" let-index="index">
+                <div class="flex flex-column">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground font-medium p-4">
+                        <div class="row">
+                            <img class="logo" src="assets/AD.png" alt="AD.png">
+                        </div>
+                        <div class="row">
+                            <h3>Hola!</h3>
+                        </div>
+                        <div class="row">
+                            <p>
+                                Bienvenido/a al programa de gestión con Active Directory.
+                                Este Programa gestiona usuarios y equipos de <strong>Active Directory</strong> ayudando así con el trabajo diario del departamento de soporte. <br>
+                                Este programa es exclusivo para <strong>IT Support</strong>, es privado y solo tienen acceso a él <strong>los Administradores del Dominio</strong>. Este programa solo atiende peticiones de manera privada por consola de comandos y en ningún momento se guardan datos que puedan romper la ley de política de privacidad. <br>
+                                <br>
+                                <span class="text-primary">Finaliza los pasos siguientes para empezar a trabajar!</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex pt-4 justify-content-end">
+                    <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()"/>
+                </div>
+            </ng-template>
+        </p-stepperPanel>
+        <p-stepperPanel header="Avatar">
+            <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback" let-index="index">
+                <div class="flex flex-column">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground font-medium p-4">
+                        <div class="row">
+                            <h5>Selecciona tu avatar!</h5>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="avatars">
+                                <img *ngFor="let item of items" class="avatar" src="assets/avatars/{{ item }}" [alt]="item" (click)="selectAvatar(item)" [ngClass]="{'selected-avatar': avatarSelect === item}">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex pt-4 justify-content-between">
+                    <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit(); avatarSelect = null;" />
+                    <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit()" />
+                </div>
+            </ng-template>
+        </p-stepperPanel>
+        <p-stepperPanel header="Header III">
+            <ng-template pTemplate="content" let-prevCallback="prevCallback" let-index="index">
+                <div class="flex flex-column h-12rem">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
+                        Content III
+                    </div>
+                </div>
+                <div class="flex pt-4 justify-content-start">
+                    <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
+                </div>
+            </ng-template>
+        </p-stepperPanel>
+    </p-stepper>
+</div>

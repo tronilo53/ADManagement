@@ -1,0 +1,23 @@
+.logo {
+    width: 25rem;
+    margin: 0 auto;
+}
+.avatars {
+    width: 90%;
+    margin: 0 auto;
+    text-align: center;
+}
+.avatar {
+    width: 9rem;
+    height: 9rem;
+    border: 1px solid lightgray;
+    border-radius: 1rem;
+    padding: 10px;
+    margin: 3px;
+    display: inline-block;
+    cursor: pointer;
+}
+.selected-avatar {
+    border: 2px dotted var(--bs-danger);
+    transition: 0.2s ease-in-out;
+}

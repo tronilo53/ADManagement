@@ -1,0 +1,14 @@
+.nav-link.active {
+    font-weight: bold;
+    color: white; /* Puedes ajustar esto según tus preferencias */
+}
+  
+.dropdown-item.active {
+    font-weight: bold;
+    background-color: var(--bs-primary); /* Color de fondo para el ítem activo */
+}
+.avatar {
+    width: 2rem;
+    height: 2rem;
+    vertical-align: middle;
+}

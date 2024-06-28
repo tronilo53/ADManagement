@@ -1,0 +1,36 @@
+<nav class="navbar navbar-expand-md sticky-top bg-primary">
+    <div class="container-fluid">
+        <a class="navbar-brand">
+            <img src="assets/Henry-Schein.png" alt="Henry-Schein.png" width="130" height="30">
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" [routerLink]="['/Dashboard/Home']" routerLinkActive="active" >Home</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" [ngClass]="{ 'active': isDropdownActive() }">Active Directory</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" [routerLink]="['/Dashboard/CreateUsers']" routerLinkActive="active" >Crear Usuarios</a></li>
+                        <li><a class="dropdown-item">Crear Unidades Organizativas</a></li>
+                        <li><a class="dropdown-item">Crear Grupos</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item">Gestionar Usuarios</a></li>
+                        <li><a class="dropdown-item">Gestionar Equipos</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link disabled" aria-disabled="true">Perfil</a>
+                </li>
+            </ul>
+            <form class="d-flex" role="search">
+                <img class="avatar" src="{{ pathAvatar }}" alt="avatar.png">
+                <input class="form-control me-2" type="text" placeholder="Buscar" aria-label="Search">
+                <button class="btn btn-outline-light" type="button">Buscar</button>
+            </form>
+        </div>
+    </div>
+</nav>
