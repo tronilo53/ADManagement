@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { TreeModule } from 'primeng/tree';
 import { StepperModule } from 'primeng/stepper';
 import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -34,7 +34,7 @@ import { InitComponent } from './pages/init/init.component';
     TreeModule,
     StepperModule,
     ButtonModule,
-    CardModule,
+    ProgressSpinnerModule,
     ComponentsModule
   ],
   providers: [],

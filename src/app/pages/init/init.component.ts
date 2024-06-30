@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-init',
@@ -10,11 +10,12 @@ export class InitComponent implements OnInit {
   /**
    * *Propiedades
    */
+  @ViewChild('loading') loading: ElementRef;
   public items: string[] = ['Batman-256.png', 'Capitan-America-256.png', 'Daredevil-256.png', 'Green-Lantern-256.png', 'Invisible-Woman-256.png', 'Mister-Fantastic-256.png', 'Namor-256.png', 'Silver-Surfer-256.png', 'Superman-256.png', 'the-Thing-256.png'];
   public avatarSelect: string | null = null;
   public themeSelected: string = 'Sweet Honey';
 
-  constructor() {}
+  constructor(private renderer: Renderer2) {}
 
   ngOnInit(): void {
     
@@ -39,11 +40,16 @@ export class InitComponent implements OnInit {
    * *Function: Finalizar Init
    */
   public finished(): void {
+    this.renderer.removeClass(this.loading.nativeElement, 'none');
     const data: any = {
-      avatar: this.avatarSelect,
+      avatar: this.avatarSelect ? this.avatarSelect : 'default.png',
       theme: this.themeSelected
     };
     console.log(data);
+    //TODO: IPC PARA GUARDAR LA CONFIGURACIÓN DE INICIO EN UN .CONF
+    setTimeout(() => {
+      this.renderer.addClass(this.loading.nativeElement, 'none');
+    }, 2000);
   }
 
   /**
