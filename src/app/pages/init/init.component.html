@@ -128,12 +128,12 @@
                         </div>
                         <div class="row">
                             <div class="content">
-                                <div class="card" style="width: 80%; margin: 0 auto;">
-                                    <img [src]="avatarSelect ? 'assets/avatars/' + avatarSelect : 'assets/avatars/default.png'" class="card-img-top" alt="avatar.png" style="width: 10rem; margin: 0 auto;">
+                                <div class="card" style="width: 50%; margin: 0 auto;">
+                                    <img [src]="avatarSelect ? 'assets/avatars/' + avatarSelect : 'assets/avatars/default.png'" class="card-img-top" alt="avatar.png" style="width: 5rem; margin: 10px auto;">
                                     <app-navbar-theme [typeNav]="getTypeNav()"></app-navbar-theme>
                                     <div class="card-body">
-                                        <h5 class="card-title">Me has elegido!</h5>
-                                        <p class="card-text">Este será tu avatar a lo largo de tu camino! Pero tranquil&commat;, lo podrás cambiar dentro de la Aplicación más adelante.</p>
+                                        <h5 class="card-title">Esta es tu elección</h5>
+                                        <p class="card-text">Este será tu avatar y tu Tema a lo largo de tu camino! Pero tranquil&commat;, los podrás cambiar dentro de la Aplicación más adelante.</p>
                                         <button class="btn btn-primary" (click)="finished()">Finzalizar</button>
                                     </div>
                                 </div>
