@@ -2,7 +2,7 @@
     width: 25rem;
     margin: 0 auto;
 }
-.avatars {
+.avatars, .content {
     width: 90%;
     margin: 0 auto;
     text-align: center;

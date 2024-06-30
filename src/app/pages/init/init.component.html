@@ -46,15 +46,103 @@
                 </div>
             </ng-template>
         </p-stepperPanel>
-        <p-stepperPanel header="Header III">
+        <p-stepperPanel header="Tema">
+            <ng-template pTemplate="content" let-prevCallback="prevCallback" let-nextCallback="nextCallback" let-index="index">
+                <div class="flex flex-column">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground font-medium p-4">
+                        <div class="row">
+                            <h4>Selecciona el Tema</h4>
+                        </div>
+                        <div class="content">
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="card" style="width: 100%; margin: 0 auto;">
+                                        <app-navbar-theme></app-navbar-theme>
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" checked [(ngModel)]="themeSelected" value="Sweet Honey">
+                                                <label class="form-check-label" for="flexRadioDefault1">
+                                                    Sweet Honey
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card" style="width: 100%; margin: 0 auto;">
+                                        <app-navbar-theme typeNav="bg-primary"></app-navbar-theme>
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" [(ngModel)]="themeSelected" value="Healthy Sky">
+                                                <label class="form-check-label" for="flexRadioDefault2">
+                                                    Healthy Sky
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="card" style="width: 100%; margin: 0 auto;">
+                                        <app-navbar-theme typeNav="bg-danger"></app-navbar-theme>
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1" [(ngModel)]="themeSelected" value="Tasty Licorice">
+                                                <label class="form-check-label" for="flexRadioDefault1">
+                                                    Tasty Licorice
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="card" style="width: 100%; margin: 0 auto;">
+                                        <app-navbar-theme typeNav="bg-secondary"></app-navbar-theme>
+                                        <div class="card-body">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2" [(ngModel)]="themeSelected" value="Gray Storm">
+                                                <label class="form-check-label" for="flexRadioDefault2">
+                                                    Gray Storm
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex pt-4 justify-content-between">
+                    <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit(); themeSelected = 'Sweet Honey';" />
+                    <p-button label="Siguiente" icon="pi pi-arrow-right" iconPos="right" (onClick)="nextCallback.emit();" />
+                </div>
+            </ng-template>
+        </p-stepperPanel>
+        <p-stepperPanel header="Resumen">
             <ng-template pTemplate="content" let-prevCallback="prevCallback" let-index="index">
-                <div class="flex flex-column h-12rem">
-                    <div class="border-2 border-dashed surface-border border-round surface-ground flex-auto flex justify-content-center align-items-center font-medium">
-                        Content III
+                <div class="flex flex-column">
+                    <div class="border-2 border-dashed surface-border border-round surface-ground font-medium p-4">
+                        <div class="row">
+                            <h4>Resumen:</h4>
+                        </div>
+                        <div class="row">
+                            <div class="content">
+                                <div class="card" style="width: 80%; margin: 0 auto;">
+                                    <img [src]="avatarSelect ? 'assets/avatars/' + avatarSelect : 'assets/avatars/default.png'" class="card-img-top" alt="avatar.png" style="width: 10rem; margin: 0 auto;">
+                                    <app-navbar-theme [typeNav]="getTypeNav()"></app-navbar-theme>
+                                    <div class="card-body">
+                                        <h5 class="card-title">Me has elegido!</h5>
+                                        <p class="card-text">Este será tu avatar a lo largo de tu camino! Pero tranquil&commat;, lo podrás cambiar dentro de la Aplicación más adelante.</p>
+                                        <button class="btn btn-primary" (click)="finished()">Finzalizar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="flex pt-4 justify-content-start">
-                    <p-button label="Back" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
+                    <p-button label="Atrás" icon="pi pi-arrow-left" (onClick)="prevCallback.emit()" />
                 </div>
             </ng-template>
         </p-stepperPanel>
