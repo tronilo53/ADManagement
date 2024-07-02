@@ -7,6 +7,7 @@ import pkg from "electron-updater";
 import { execFile } from "child_process";
 import Store from "electron-store";
 import path from 'path';
+import fs from 'fs';
 
 const { autoUpdater } = pkg;
 const store = new Store();
@@ -144,7 +145,7 @@ app.on( "window-all-closed", () => {
 /**
  * * Comunicación entre procesos
  */
-//Obtiene las Unidades Organizativas
+//Obtiene las Unidades Organizativas de AD
 ipcMain.on('getOus', (event, args) => {
     event.sender.send('getOus', store.get('ous'));
 });
@@ -159,7 +160,7 @@ ipcMain.on('Get-ADUser', (event, data) => {
         event.sender.send('Get-ADUser', { response: 'Success', data: stdout });
     });
 });
-//Obtiene los grupos de un usuario
+//Obtiene los grupos de un usuario de AD
 ipcMain.on('Get-ADGroup', (event, data) => {
     const path = isDev ? `${PATH_ASSETS_DEV}/scripts/Get-ADGroup.ps1` : `${PATH_ASSETS_PROD}/scripts/Get-ADGroup.ps1`;
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-distinguishedName', data],(error, stdout, stderr) => {
@@ -170,6 +171,7 @@ ipcMain.on('Get-ADGroup', (event, data) => {
         event.sender.send('Get-ADGroup', { response: 'Success', data: stdout });
     });
 });
+//Crea un Nuevo Usuario en AD
 ipcMain.on('New-ADUser', (event, data) => {
     const path = isDev ? `${PATH_ASSETS_DEV}/scripts/New-ADUser.ps1` : `${PATH_ASSETS_PROD}/scripts/New-ADUser.ps1`;
     const jsonData = JSON.stringify(data);
@@ -182,6 +184,12 @@ ipcMain.on('New-ADUser', (event, data) => {
         event.sender.send('New-ADUser', { response: 'Success', data: stdout });
     });
 });
+//Guarda los datos de configuración de la App
+ipcMain.on('saveConf', (event, data) => {
+    const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
+    if(fs.existsSync(`${path}/config.conf`)) {}//TODO: CREAR ARCHIVO DE CONF
+});
+
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());
 //DESCARGAR ACTUALIZACION

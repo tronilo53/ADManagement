@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { IpcService } from '../../services/ipc.service';
 
 @Component({
   selector: 'app-init',
@@ -15,7 +16,10 @@ export class InitComponent implements OnInit {
   public avatarSelect: string | null = null;
   public themeSelected: string = 'Sweet Honey';
 
-  constructor(private renderer: Renderer2) {}
+  constructor(
+    private renderer: Renderer2,
+    private ipcService: IpcService
+  ) {}
 
   ngOnInit(): void {
     
@@ -40,16 +44,19 @@ export class InitComponent implements OnInit {
    * *Function: Finalizar Init
    */
   public finished(): void {
+    //Se muestra el Loading
     this.renderer.removeClass(this.loading.nativeElement, 'none');
+    //Se crean los datos de configuración
     const data: any = {
       avatar: this.avatarSelect ? this.avatarSelect : 'default.png',
       theme: this.themeSelected
     };
-    console.log(data);
-    //TODO: IPC PARA GUARDAR LA CONFIGURACIÓN DE INICIO EN UN .CONF
-    setTimeout(() => {
-      this.renderer.addClass(this.loading.nativeElement, 'none');
-    }, 2000);
+    //Ipc para guardar los datos de configuración
+    this.ipcService.send('saveConf', data);
+    this.ipcService.removeAllListeners('saveConf');
+    this.ipcService.on('saveConf', (event, args) => {
+      
+    });
   }
 
   /**
