@@ -20,7 +20,7 @@ const routes: Routes = [
       {path: '**', pathMatch: 'full', redirectTo: 'Home' }
     ]
   },
-  {path: '**', pathMatch: 'full', redirectTo: 'Init' }
+  {path: '**', pathMatch: 'full', redirectTo: 'Dashboard' }
 ];
 
 @NgModule({

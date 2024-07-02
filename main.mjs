@@ -8,6 +8,7 @@ import { execFile } from "child_process";
 import Store from "electron-store";
 import path from 'path';
 import fs from 'fs';
+import xml2js from 'xml2js';
 
 const { autoUpdater } = pkg;
 const store = new Store();
@@ -185,9 +186,32 @@ ipcMain.on('New-ADUser', (event, data) => {
     });
 });
 //Guarda los datos de configuración de la App
-ipcMain.on('saveConf', (event, data) => {
+ipcMain.on('saveConf', (event, args) => {
     const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
-    if(fs.existsSync(`${path}/config.conf`)) {}//TODO: CREAR ARCHIVO DE CONF
+    fs.readFile(`${path}/config.xml`, 'utf-8', (error, data) => {
+        xml2js.parseString(data, (error, result) => {
+            result.config.avatar[0].$.rel = args.avatar;
+            result.config.theme[0].$.rel = args.theme;
+
+            const builder = new xml2js.Builder();
+            const xml = builder.buildObject(result);
+
+            fs.writeFile(`${path}/config.xml`, xml, (err) => {
+                if(err) event.sender.send('saveConf', '002');
+                else event.sender.send('saveConf', '001');
+            });
+        });
+    });
+});
+//Comprueba si hay datos de configuración guardados en la App
+ipcMain.on('checkConfig', (event, data) => {
+    const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
+    fs.readFile(`${path}/config.xml`, 'utf-8', (error, data) => {
+        xml2js.parseString(data, (error, json) => {
+            if(json.config.avatar[0].$.rel === '') event.sender.send('checkConfig', '002');
+            else event.sender.send('checkConfig', '001');
+        });
+    });
 });
 
 //CERRAR APLICACIÓN
