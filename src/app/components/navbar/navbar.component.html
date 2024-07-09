@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md sticky-top bg-light" #navbarTheme>
+<nav class="navbar navbar-expand-md sticky-top" #navbarTheme>
     <div class="container-fluid">
         <a class="navbar-brand">
             <img src="assets/Henry-Schein.png" alt="Henry-Schein.png" width="130" height="30">
@@ -23,14 +23,11 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link disabled" aria-disabled="true">Perfil</a>
+                    <a class="nav-link" [routerLink]="['/Dashboard/Profile']" routerLinkActive="active" >Perfil</a>
                 </li>
             </ul>
             <form class="d-flex" role="search">
-                <img class="avatar" src="assets/avatars/{{ config.avatar }}" alt="avatar.png" *ngIf="!isLoading && config.avatar !== ''">
-                <div class="spinner-grow" role="status" *ngIf="isLoading && config.avatar === ''">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
+                <img class="avatar" src="assets/avatars/{{ config.avatar }}" alt="avatar.png">
                 <input class="form-control me-2" type="text" placeholder="Buscar" aria-label="Search">
                 <button class="btn btn-outline-light" type="button">Buscar</button>
             </form>

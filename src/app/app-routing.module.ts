@@ -6,6 +6,7 @@ import { ManagementUsersComponent } from './pages/management-users/management-us
 import { CreateUsersComponent } from './pages/create-users/create-users.component';
 import { DashboardComponent } from './pages/shared/dashboard/dashboard.component';
 import { InitComponent } from './pages/init/init.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 const routes: Routes = [
   {path: 'Preload', component: PreloadComponent},
@@ -17,6 +18,7 @@ const routes: Routes = [
       {path: 'Home', component: HomeComponent},
       {path: 'CreateUsers', component: CreateUsersComponent },
       {path: 'ManagementUsers', component: ManagementUsersComponent },
+      {path: 'Profile', component: ProfileComponent},
       {path: '**', pathMatch: 'full', redirectTo: 'Home' }
     ]
   },

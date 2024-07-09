@@ -185,45 +185,6 @@ ipcMain.on('New-ADUser', (event, data) => {
         event.sender.send('New-ADUser', { response: 'Success', data: stdout });
     });
 });
-//Guarda los datos de configuración de la App
-ipcMain.on('saveConf', (event, args) => {
-    const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
-    fs.readFile(`${path}/config.xml`, 'utf-8', (error, data) => {
-        xml2js.parseString(data, (error, result) => {
-            result.config.avatar[0].$.rel = args.avatar;
-            result.config.theme[0].$.rel = args.theme;
-
-            const builder = new xml2js.Builder();
-            const xml = builder.buildObject(result);
-
-            fs.writeFile(`${path}/config.xml`, xml, (err) => {
-                if(err) event.sender.send('saveConf', '002');
-                else event.sender.send('saveConf', '001');
-            });
-        });
-    });
-});
-//Comprueba si hay datos de configuración guardados en la App
-ipcMain.on('checkConfig', (event, args) => {
-    const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
-    fs.readFile(`${path}/config.xml`, 'utf-8', (error, data) => {
-        xml2js.parseString(data, (error, json) => {
-            if(json.config.avatar[0].$.rel === '') event.sender.send('checkConfig', '002');
-            else event.sender.send('checkConfig', '001');
-        });
-    });
-});
-//Devuelve la configuración del .xml
-ipcMain.on('getConfig', (event, args) => {
-    const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
-    fs.readFile(`${path}/config.xml`, 'utf-8', (error, data) => {
-        xml2js.parseString(data, (error, json) => {
-            const dataSend = { avatar: json.config.avatar[0].$.rel, theme: json.config.theme[0].$.rel };
-            if(dataSend.avatar === '') event.sender.send('getConfig', '001');
-            else event.sender.send('getConfig', { data: dataSend });
-        });
-    });
-});
 
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());

@@ -16,6 +16,7 @@ import { CreateUsersComponent } from './pages/create-users/create-users.componen
 import { DashboardComponent } from './pages/shared/dashboard/dashboard.component';
 import { ComponentsModule } from './components/components.module';
 import { InitComponent } from './pages/init/init.component';
+import { ProfileComponent } from './pages/profile/profile.component';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { InitComponent } from './pages/init/init.component';
     ManagementUsersComponent,
     CreateUsersComponent,
     DashboardComponent,
-    InitComponent
+    InitComponent,
+    ProfileComponent
   ],
   imports: [
     BrowserModule,

@@ -1,6 +1,4 @@
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
-import { IpcService } from '../../services/ipc.service';
-import Swal from 'sweetalert2';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -18,11 +16,7 @@ export class InitComponent implements OnInit {
   public avatarSelect: string | null = null;
   public themeSelected: string = 'Sweet Honey';
 
-  constructor(
-    private renderer: Renderer2,
-    private ipcService: IpcService,
-    private router: Router
-  ) {}
+  constructor(private router: Router) {}
 
   ngOnInit(): void {
     
@@ -47,26 +41,15 @@ export class InitComponent implements OnInit {
    * *Function: Finalizar Init
    */
   public finished(): void {
-    //Se muestra el Loading
-    this.renderer.removeClass(this.loading.nativeElement, 'none');
     //Se crean los datos de configuración
     const data: any = {
       avatar: this.avatarSelect ? this.avatarSelect : 'default.png',
       theme: this.themeSelected
     };
-    //Ipc para guardar los datos de configuración
-    this.ipcService.send('saveConf', data);
-    this.ipcService.removeAllListeners('saveConf');
-    this.ipcService.on('saveConf', (event, args) => {
-      //Si no se guardan los datos...
-      if(args === '002') {
-        //Se oculta el Loading
-        this.renderer.addClass(this.loading.nativeElement, 'none');
-        //Se muestra una alerta
-        this.alert('error', 'Hubo un error no controlado al guardar la configuración. Inténtalo de nuevo o contacta con soporte.');
-      //Si se guardan los datos redirecciona al Dashboard
-      }else this.router.navigate(['/Dashboard']);
-    });
+    //Se guarda en el localStorage la configuracion
+    localStorage.setItem('config', JSON.stringify(data));
+    //Redirige al Dashboard
+    this.router.navigate(['/Dashboard']);
   }
 
   /**
@@ -78,12 +61,5 @@ export class InitComponent implements OnInit {
     else if(this.themeSelected === 'Tasty Licorice') return 'bg-danger';
     else if(this.themeSelected === 'Gray Storm') return 'bg-secondary';
     else return 'bg-warning';
-  }
-  private alert(icon: any, text: string): void {
-    Swal.fire({
-      icon,
-      text,
-      allowOutsideClick: false
-    });
   }
 }

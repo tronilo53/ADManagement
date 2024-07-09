@@ -20,14 +20,9 @@ export class DashboardComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
   }
   ngAfterViewInit(): void {
-    //Ipc para comprobar si hay datos de configuración guardados
-    this.ipcService.send('checkConfig');
-    this.ipcService.removeAllListeners('checkConfig');
-    this.ipcService.on('checkConfig', (event, args) => {
-      //Si existen datos de configuración se oculta el loading
-      if(args === '001') this.renderer.addClass(this.loading.nativeElement, 'none');
-      //Si no existen datos de configuración redirige al Init
-      else this.router.navigate(['/Init']);
-    });
+    //Si no existe configuración guardada en el LocalStotage se redirige al Init
+    if(!localStorage.getItem('config')) this.router.navigate(['/Init']);
+    //Si existe configuración guardada se oculta el loading
+    this.renderer.addClass(this.loading.nativeElement, 'none');
   }
 }

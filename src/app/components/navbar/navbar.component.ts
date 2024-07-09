@@ -1,14 +1,13 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { IpcService } from '../../services/ipc.service';
 
 @Component({
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
-export class NavbarComponent implements OnInit {
+export class NavbarComponent implements OnInit, AfterViewInit {
 
   /**
    * *Propiedades
@@ -17,11 +16,9 @@ export class NavbarComponent implements OnInit {
 
   public currentUrl: string;
   public config: any = {avatar: '', theme: ''};
-  public isLoading: boolean = true;
 
   constructor(
     private router: Router,
-    private ipcService: IpcService,
     private renderer: Renderer2,
     private cp: ChangeDetectorRef
   ) {
@@ -31,20 +28,15 @@ export class NavbarComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    //Se guarda la configuracion del localStorage en la variable 'config'
+    this.config = {...this.config, avatar: JSON.parse(localStorage.getItem('config')).avatar, theme: JSON.parse(localStorage.getItem('config')).theme};
+    //Se aplica el tema al navbar
+    this.renderer.addClass(this.navbarTheme.nativeElement, this.getTheme());
+    //Se detectan los cambios
+    this.cp.detectChanges();
+  }
   ngOnInit(): void {
-    //Peticion para obtener los datos de configuración del archivo .xml
-    this.ipcService.send('getConfig');
-    this.ipcService.removeAllListeners('getConfig');
-    this.ipcService.on('getConfig', (event, args) => {
-      //Se quita la carga
-      this.isLoading = false;
-      //Se guarda la configuracion como objeto en la variable 'config'
-      this.config = {...this.config, avatar: args.data.avatar, theme: args.data.theme};
-      //Se modifica el tema del navbar
-      this.renderer.addClass(this.navbarTheme.nativeElement, this.getTheme());
-      //Se detectan cambios
-      this.cp.detectChanges();
-    });
   }
 
   /**
