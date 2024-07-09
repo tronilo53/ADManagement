@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md sticky-top bg-primary">
+<nav class="navbar navbar-expand-md sticky-top bg-light" #navbarTheme>
     <div class="container-fluid">
         <a class="navbar-brand">
             <img src="assets/Henry-Schein.png" alt="Henry-Schein.png" width="130" height="30">
@@ -27,7 +27,10 @@
                 </li>
             </ul>
             <form class="d-flex" role="search">
-                <img class="avatar" src="{{ pathAvatar }}" alt="avatar.png">
+                <img class="avatar" src="assets/avatars/{{ config.avatar }}" alt="avatar.png" *ngIf="!isLoading && config.avatar !== ''">
+                <div class="spinner-grow" role="status" *ngIf="isLoading && config.avatar === ''">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
                 <input class="form-control me-2" type="text" placeholder="Buscar" aria-label="Search">
                 <button class="btn btn-outline-light" type="button">Buscar</button>
             </form>

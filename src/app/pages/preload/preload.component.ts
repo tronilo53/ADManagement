@@ -9,6 +9,9 @@ import Swal, { SweetAlertIcon } from 'sweetalert2';
 })
 export class PreloadComponent implements OnInit, AfterViewInit {
 
+  /**
+   * *Propiedades
+   */
   private toastQueue: Array<{ icon: SweetAlertIcon; title: string }> = [];
   private isShowing: boolean = false;
 
@@ -19,15 +22,14 @@ export class PreloadComponent implements OnInit, AfterViewInit {
     this.ipcService.on('getOusError', (event, args) => this.addToastToQueue("error", "No se han obtenido las OU's"));
     //Escucha por si se han obtenido las OU's de forma satisfactoria
     this.ipcService.on('getOusSuccess', (event, args) => this.addToastToQueue('success', "OU's Obtenidas con éxito"));
-    //Escucha algun error en el Token de GIT
-    this.ipcService.on('tokenGitError', (event, args) => this.addToastToQueue('error', "No se ha establecido el Token Git"));
-    //Escucha si el Token GIT se ha establecido con exito
-    this.ipcService.on('tokenGitSuccess', (event, args) => this.addToastToQueue('success', "Token Git establecido con éxito"));
   }
   ngOnInit(): void {
 
   }
 
+  /**
+   * *Function: Muestra una notificación
+   */
   private Toast = Swal.mixin({
     toast: true,
     position: 'top-end',

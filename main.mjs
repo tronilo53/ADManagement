@@ -204,12 +204,23 @@ ipcMain.on('saveConf', (event, args) => {
     });
 });
 //Comprueba si hay datos de configuración guardados en la App
-ipcMain.on('checkConfig', (event, data) => {
+ipcMain.on('checkConfig', (event, args) => {
     const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
     fs.readFile(`${path}/config.xml`, 'utf-8', (error, data) => {
         xml2js.parseString(data, (error, json) => {
             if(json.config.avatar[0].$.rel === '') event.sender.send('checkConfig', '002');
             else event.sender.send('checkConfig', '001');
+        });
+    });
+});
+//Devuelve la configuración del .xml
+ipcMain.on('getConfig', (event, args) => {
+    const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
+    fs.readFile(`${path}/config.xml`, 'utf-8', (error, data) => {
+        xml2js.parseString(data, (error, json) => {
+            const dataSend = { avatar: json.config.avatar[0].$.rel, theme: json.config.theme[0].$.rel };
+            if(dataSend.avatar === '') event.sender.send('getConfig', '001');
+            else event.sender.send('getConfig', { data: dataSend });
         });
     });
 });
