@@ -1,8 +1,36 @@
 <div class="profile" class="animate__animated animate__fadeIn">
+    <div class="container_avatar">
+        <img class="avatar" src="assets/avatars/{{ storageService.getConfig().avatar }}" alt="avatar.png">
+        <span class="title">Perfil de Usuario:</span>
+    </div>
     <div class="container">
         <div class="row">
-            <div class="col-12">
-                <h2>Profile Works!!</h2>
+            <div class="col-7 text-center">
+                <h3 class="mb-3">Cambiar Tema</h3>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="radioTheme" value="" id="flexCheckDefault" style="margin-top: 1.3rem;">
+                    <app-navbar-theme></app-navbar-theme>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="radioTheme" value="" id="flexCheckDefault" style="margin-top: 1.3rem;">
+                    <app-navbar-theme typeNav="bg-primary"></app-navbar-theme>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="radioTheme" value="" id="flexCheckDefault" style="margin-top: 1.3rem;">
+                    <app-navbar-theme typeNav="bg-danger"></app-navbar-theme>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="radioTheme" value="" id="flexCheckDefault" style="margin-top: 1.3rem;">
+                    <app-navbar-theme typeNav="bg-secondary"></app-navbar-theme>
+                </div>
+                <button type="button" [class]="storageService.getTheme('button') + ' mt-5'">Establecer Tema</button>
+            </div>
+            <div class="col-5 text-center">
+                <h3 class="mb-3">Cambiar Avatar</h3>
+                <div class="listAvatar mb-5">
+                    <img class="avatarList" [ngClass]="{'select-avatar' : avatarSelect === avatar}" src="assets/avatars/{{ avatar }}" alt="avatar.png" *ngFor="let avatar of storageService.getAvatars()" (click)="selectAvatar(avatar)">
+                </div>
+                <button type="button" [class]="storageService.getTheme('button')" (click)="setAvatar()">Establecer Avatar</button>
             </div>
         </div>
     </div>

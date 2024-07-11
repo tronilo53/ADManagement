@@ -121,6 +121,7 @@ function createHome() {
     appWin.setIcon(isDev ? `${PATH_ASSETS_DEV}/favicon.png` : `${PATH_ASSETS_PROD}/favicon.png`);
     appWin.setMenu(isDev ? menuDev : null);
     appWin.loadURL(isDev ? 'http://localhost:4200/' : `${PATH_DIST_PROD}/browser/index.html`);
+    if(isDev) appWin.webContents.openDevTools({ mode: 'detach' });
     
     //Cuando la ventana está lista para ser mostrada...
     appWin.once( "ready-to-show", () => {

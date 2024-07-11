@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md sticky-top" #navbarTheme>
+<nav class="navbar navbar-expand-md sticky-top {{ storageService.getTheme('nav') }}" #navbarTheme>
     <div class="container-fluid">
         <a class="navbar-brand">
             <img src="assets/Henry-Schein.png" alt="Henry-Schein.png" width="130" height="30">
@@ -27,7 +27,7 @@
                 </li>
             </ul>
             <form class="d-flex" role="search">
-                <img class="avatar" src="assets/avatars/{{ config.avatar }}" alt="avatar.png">
+                <img class="avatar" src="assets/avatars/{{ storageService.getConfig().avatar }}" alt="avatar.png">
                 <input class="form-control me-2" type="text" placeholder="Buscar" aria-label="Search">
                 <button class="btn btn-outline-light" type="button">Buscar</button>
             </form>
