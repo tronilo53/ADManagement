@@ -9,8 +9,11 @@ import { ControllerService } from '../../services/controller.service';
 })
 export class ProfileComponent implements OnInit {
 
+  /**
+   * *Propiedades
+   */
   public avatarSelect: string | null = null;
-  public themeSelected: string = 'Sweet Honey';
+  public selectedTheme: string | null = null;
 
   constructor(
     public storageService: StorageService,
@@ -18,11 +21,12 @@ export class ProfileComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    
+    //Se guarda el tema actual en la variable 'selectedTheme' para el ngModel
+    this.selectedTheme = this.storageService.getConfig().theme;
   }
 
   /**
-   * *Function: Selección de avatar
+   * *Function: Selección de avatar en el DOM
    * @param item Avatar elegido
    */
   public selectAvatar(item: string): void {
@@ -36,6 +40,20 @@ export class ProfileComponent implements OnInit {
     }else this.avatarSelect = item;
   }
 
+  public getType(theme: string): string {
+    let themeClass: string = '';
+    switch(theme) {
+      case 'Sweet Honey': themeClass = 'bg-warning'; break;
+      case 'Healthy Sky': themeClass = 'bg-primary'; break;
+      case 'Tasty Licorice': themeClass = 'bg-danger'; break;
+      case 'Gray Storm': themeClass = 'bg-secondary'; break;
+    }
+    return themeClass;
+  }
+
+  /**
+   * *Function: Establece el avatar en el storageService
+   */
   public setAvatar(): void {
     //Si no hay ningun avatar seleccionado...
     if(!this.avatarSelect) this.controllerService.createAlert('info', 'No se ha seleccionado ningún avatar');
@@ -46,12 +64,29 @@ export class ProfileComponent implements OnInit {
       //Si se selecciona un avatar diferente...
       else {
         //Se establece el nuevo avatar
-        this.storageService.setAvatar(this.avatarSelect);
+        this.storageService.setConfig('avatar', this.avatarSelect);
         //Se restablece el avatar
         this.avatarSelect = null;
         //Se muestra una notificación
         this.controllerService.createToast('top-end', 'success', 'Avatar establecido!');
       }
+    }
+  }
+
+  /**
+   * *Function: Establece el Tema en el storageService
+   */
+  public setTheme(): void {
+    //Si el tema seleccionado es igual al tema actual, se muestra una alerta
+    if(this.selectedTheme === this.storageService.getConfig().theme) this.controllerService.createAlert('info', 'Este tema ya está aplicado');
+    //Si el tema seleccionado es distinto...
+    else {
+      //Se establece el nuevo tema
+      this.storageService.setConfig('theme', this.selectedTheme);
+      //Se restablece el tema con el aplicado
+      this.selectedTheme = this.storageService.getConfig().theme;
+      //Se muestra una notificación
+      this.controllerService.createToast('top-end', 'success', 'Tema establecido!');
     }
   }
 }

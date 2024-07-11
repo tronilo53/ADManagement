@@ -7,23 +7,11 @@
         <div class="row">
             <div class="col-7 text-center">
                 <h3 class="mb-3">Cambiar Tema</h3>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="radioTheme" value="" id="flexCheckDefault" style="margin-top: 1.3rem;">
-                    <app-navbar-theme></app-navbar-theme>
+                <div class="form-check" *ngFor="let theme of storageService.getThemes(); let i = index">
+                    <input class="form-check-input" type="radio" name="radioTheme" [value]="theme" id="flexCheckDefault{{ i }}" style="margin-top: 1.3rem;" [(ngModel)]="selectedTheme">
+                    <app-navbar-theme [typeNav]="getType(theme)"></app-navbar-theme>
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="radioTheme" value="" id="flexCheckDefault" style="margin-top: 1.3rem;">
-                    <app-navbar-theme typeNav="bg-primary"></app-navbar-theme>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="radioTheme" value="" id="flexCheckDefault" style="margin-top: 1.3rem;">
-                    <app-navbar-theme typeNav="bg-danger"></app-navbar-theme>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="radioTheme" value="" id="flexCheckDefault" style="margin-top: 1.3rem;">
-                    <app-navbar-theme typeNav="bg-secondary"></app-navbar-theme>
-                </div>
-                <button type="button" [class]="storageService.getTheme('button') + ' mt-5'">Establecer Tema</button>
+                <button type="button" [class]="storageService.getTheme('button') + ' mt-5'" (click)="setTheme()">Establecer Tema</button>
             </div>
             <div class="col-5 text-center">
                 <h3 class="mb-3">Cambiar Avatar</h3>
