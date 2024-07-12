@@ -9,9 +9,13 @@
 </div>
 <div class="home animate__animated animate__fadeIn">
     <div class="container">
-        <h2>HomeWorks!!</h2>
+        <div class="row mt-5">
+            <div class="col">
+                <app-maintenance></app-maintenance>
+            </div>
+        </div>
     </div>
 </div>
 <div class="version">
-    <p>v{{ version }}</p>
+    <p>v{{ version ? version : 'No Info' }}</p>
 </div>

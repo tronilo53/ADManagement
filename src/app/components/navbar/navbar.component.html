@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md sticky-top {{ storageService.getTheme('nav') }}" #navbarTheme>
+<nav class="navbar navbar-expand-md sticky-top {{ storageService.getThemeCss('nav') }}" #navbarTheme>
     <div class="container-fluid">
         <a class="navbar-brand">
             <img src="assets/Henry-Schein.png" alt="Henry-Schein.png" width="130" height="30">
@@ -15,11 +15,11 @@
                     <a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false" [ngClass]="{ 'active': isDropdownActive() }">Active Directory</a>
                     <ul class="dropdown-menu">
                         <li><a class="dropdown-item" [routerLink]="['/Dashboard/CreateUsers']" routerLinkActive="active" >Crear Usuarios</a></li>
-                        <li><a class="dropdown-item">Crear Unidades Organizativas</a></li>
-                        <li><a class="dropdown-item">Crear Grupos</a></li>
+                        <li><a class="dropdown-item disabled">Crear Unidades Organizativas</a></li>
+                        <li><a class="dropdown-item disabled">Crear Grupos</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item">Gestionar Usuarios</a></li>
-                        <li><a class="dropdown-item">Gestionar Equipos</a></li>
+                        <li><a class="dropdown-item disabled">Gestionar Usuarios</a></li>
+                        <li><a class="dropdown-item disabled">Gestionar Equipos</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
@@ -28,8 +28,8 @@
             </ul>
             <form class="d-flex" role="search">
                 <img class="avatar" src="assets/avatars/{{ storageService.getConfig().avatar }}" alt="avatar.png">
-                <input class="form-control me-2" type="text" placeholder="Buscar" aria-label="Search">
-                <button class="btn btn-outline-light" type="button">Buscar</button>
+                <input class="form-control me-2" disabled type="text" placeholder="Buscar" aria-label="Search">
+                <button class="btn btn-outline-light disabled" type="button">Buscar</button>
             </form>
         </div>
     </div>

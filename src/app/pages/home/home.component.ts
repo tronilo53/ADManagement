@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { IpcService } from '../../services/ipc.service';
 import Swal from 'sweetalert2';
+import { StorageService } from '../../services/storage.service';
 
 @Component({
   selector: 'app-home',
@@ -14,17 +15,18 @@ export class HomeComponent implements OnInit, AfterViewInit {
    */
   @ViewChild('loadingProcess') loadingProcess: ElementRef;
   @ViewChild('process') process: ElementRef;
-  public version: string = '';
+  public version: string | null = null;
 
   constructor(
     private ipcService: IpcService,
     private renderer: Renderer2,
-    private cd: ChangeDetectorRef
+    public storageService: StorageService,
+    private cp: ChangeDetectorRef
   ) {}
 
   ngAfterViewInit(): void {
-    //Obtener la versión de la App
-    this.setVersion();
+    //Se obtiene la version de la App
+    this.getVersionApp();
     //Escucha si hay una actualización disponible
     this.ipcService.on('update_available', (event, data) => {
       this.update_available();
@@ -77,18 +79,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
   }
 
-  /**
-   * *Function: Obtiene la versión actual de la App
-   */
-  private setVersion(): void {
+  public getVersionApp(): void {
     //ipc para obtener la versión actual de la App
-    this.ipcService.send('setVersion');
-    this.ipcService.removeAllListeners('setVersion');
-    this.ipcService.on('setVersion', (event, args) => {
+    this.ipcService.send('getVersion');
+    this.ipcService.removeAllListeners('getVersion');
+    this.ipcService.on('getVersion', (event, args) => {
       //Guarda la version en la variable 'version'
       this.version = args.data;
       //Detecta los cambios en la vista
-      this.cd.detectChanges();
+      this.cp.detectChanges();
     });
   }
 }

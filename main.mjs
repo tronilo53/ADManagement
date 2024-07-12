@@ -194,8 +194,8 @@ ipcMain.on( 'downloadApp', () => autoUpdater.downloadUpdate() );
 //INSTALAR ACTUALIZACION
 ipcMain.on( 'installApp', () => autoUpdater.quitAndInstall() );
 //OBTENER VERSION DE APP
-ipcMain.on( 'setVersion', ( event, args ) => {
-    event.sender.send( 'setVersion', { data: app.getVersion() } );
+ipcMain.on( 'getVersion', ( event, args ) => {
+    event.sender.send( 'getVersion', { data: app.getVersion() } );
 });
 
 /**

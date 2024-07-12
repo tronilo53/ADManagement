@@ -11,14 +11,14 @@
                     <input class="form-check-input" type="radio" name="radioTheme" [value]="theme" id="flexCheckDefault{{ i }}" style="margin-top: 1.3rem;" [(ngModel)]="selectedTheme">
                     <app-navbar-theme [typeNav]="getType(theme)"></app-navbar-theme>
                 </div>
-                <button type="button" [class]="storageService.getTheme('button') + ' mt-5'" (click)="setTheme()">Establecer Tema</button>
+                <button type="button" [class]="storageService.getThemeCss('button') + ' mt-5'" (click)="setTheme()">Establecer Tema</button>
             </div>
             <div class="col-5 text-center">
                 <h3 class="mb-3">Cambiar Avatar</h3>
                 <div class="listAvatar mb-5">
                     <img class="avatarList" [ngClass]="{'select-avatar' : avatarSelect === avatar}" src="assets/avatars/{{ avatar }}" alt="avatar.png" *ngFor="let avatar of storageService.getAvatars()" (click)="selectAvatar(avatar)">
                 </div>
-                <button type="button" [class]="storageService.getTheme('button')" (click)="setAvatar()">Establecer Avatar</button>
+                <button type="button" [class]="storageService.getThemeCss('button')" (click)="setAvatar()">Establecer Avatar</button>
             </div>
         </div>
     </div>

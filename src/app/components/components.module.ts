@@ -3,13 +3,15 @@ import { CommonModule } from '@angular/common';
 import { NavbarComponent } from './navbar/navbar.component';
 import { RouterModule } from '@angular/router';
 import { NavbarThemeComponent } from './navbar-theme/navbar-theme.component';
+import { MaintenanceComponent } from './maintenance/maintenance.component';
 
 
 
 @NgModule({
   declarations: [
     NavbarComponent,
-    NavbarThemeComponent
+    NavbarThemeComponent,
+    MaintenanceComponent
   ],
   imports: [
     CommonModule,
@@ -17,7 +19,8 @@ import { NavbarThemeComponent } from './navbar-theme/navbar-theme.component';
   ],
   exports: [
     NavbarComponent,
-    NavbarThemeComponent
+    NavbarThemeComponent,
+    MaintenanceComponent
   ]
 })
 export class ComponentsModule { }

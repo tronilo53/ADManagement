@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { IpcService } from './ipc.service';
 
 interface Config {
   avatar: string;
@@ -18,7 +19,9 @@ export class StorageService {
   private avatars: string[] = ['Batman-256.png', 'Capitan-America-256.png', 'Daredevil-256.png', 'Green-Lantern-256.png', 'Invisible-Woman-256.png', 'Mister-Fantastic-256.png', 'Namor-256.png', 'Silver-Surfer-256.png', 'Superman-256.png', 'the-Thing-256.png'];
   private themes: string[] = ['Sweet Honey', 'Healthy Sky', 'Tasty Licorice', 'Gray Storm'];
 
-  constructor() {
+  constructor(
+    private ipcService: IpcService
+  ) {
     //Se instancia el BehaviorSubject con los datos del localStorage
     this.configBehavior = new BehaviorSubject<string>(localStorage.getItem('config'));
   }
@@ -65,7 +68,7 @@ export class StorageService {
    * @param type Tipo de elemento a aplicar la clase
    * @returns Devuelve la/s clases css en tipo String
    */
-  public getTheme(type: string): string {
+  public getThemeCss(type: string): string {
     //Se crea una variable vacia de tipo String
     let addClass: string = '';
     //Se obtienen los datos actuales del BehaviorSubject en tipo Config
@@ -85,6 +88,13 @@ export class StorageService {
         case 'Healthy Sky': addClass = 'bg-primary'; break;
         case 'Tasty Licorice': addClass = 'bg-danger'; break;
         case 'Gray Storm': addClass = 'bg-secondary'; break;
+      }
+    }else if(type === 'alert') {
+      switch(currentConfig.theme) {
+        case 'Sweet Honey': addClass = 'alert alert-warning'; break;
+        case 'Healthy Sky': addClass = 'alert alert-primary'; break;
+        case 'Tasty Licorice': addClass = 'alert alert-danger'; break;
+        case 'Gray Storm': addClass = 'alert alert-secondary'; break;
       }
     }
     //Devuelve la/s clases css
