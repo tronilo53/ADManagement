@@ -26,7 +26,6 @@ export class StorageService {
     sessionStorage.setItem('config', JSON.stringify(data));
     //Se modifica el BehaviorSubject con los nuevos datos
     this.configBehavior.next(data);
-    console.log("Config updated:", data); // Agrega esto para verificar la emisión
   }
 
   /**
@@ -88,6 +87,13 @@ export class StorageService {
         case 'Healthy Sky': addClass = 'alert alert-primary'; break;
         case 'Tasty Licorice': addClass = 'alert alert-danger'; break;
         case 'Gray Storm': addClass = 'alert alert-secondary'; break;
+      }
+    }else if(type === 'badge') {
+      switch(this.getConfig().theme) {
+        case 'Sweet Honey': addClass = 'badge text-bg-warning'; break;
+        case 'Healthy Sky': addClass = 'badge text-bg-primary'; break;
+        case 'Tasty Licorice': addClass = 'badge text-bg-danger'; break;
+        case 'Gray Storm': addClass = 'badge text-bg-secondary'; break;
       }
     }
     //Devuelve la/s clases css

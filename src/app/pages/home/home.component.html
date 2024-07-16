@@ -17,5 +17,7 @@
     </div>
 </div>
 <div class="version">
-    <p>v{{ version ? version : 'No Info' }}</p>
+    <p>
+        <span [class]="storageService.getThemeCss('badge')">v{{ version ? version : 'No Info' }}</span>
+    </p>
 </div>

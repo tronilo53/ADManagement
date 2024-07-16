@@ -1,7 +1,7 @@
 /**
  * * Importaciones de Módulos
  */
-import { app, BrowserWindow, ipcMain, Menu } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, Tray } from "electron";
 import isDev from "electron-is-dev";
 import pkg from "electron-updater";
 import { execFile } from "child_process";
@@ -29,6 +29,7 @@ autoUpdater.autoRunAppAfterInstall = true;
  */
 let appWin;
 let appPrelaod;
+let tray = null;
 
 /**
  * * Preparación del Menú
@@ -135,7 +136,16 @@ function createHome() {
 /**
  * * Preparar la App
  */
-app.whenReady().then( () => createPreload());
+app.whenReady().then( () => {
+    //Se Lanza primero la ventana de Preload y continua..
+    createPreload();
+    //Se crea una instancia de 'Tray' (Icono en la barra de tareas)
+    tray = new Tray(`${isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD}/favicon.png`);
+    //Se crea un nombre para la bandeja
+    tray.setToolTip('ADManagement');
+    //Se crea un menu para la bandeja
+    tray.setContextMenu(Menu.buildFromTemplate([ {label: 'Salir', click: () => app.quit()} ]));
+});
 
 /**
  * * Acciones para cerrar la App en MacOs

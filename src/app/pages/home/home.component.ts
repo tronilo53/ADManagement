@@ -1,15 +1,14 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { IpcService } from '../../services/ipc.service';
 import Swal from 'sweetalert2';
 import { StorageService } from '../../services/storage.service';
-import { ControllerService } from '../../services/controller.service';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements OnInit, AfterViewInit {
+export class HomeComponent implements AfterViewInit {
 
   /**
    * *Propiedades de la clase
@@ -22,8 +21,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private ipcService: IpcService,
     private renderer: Renderer2,
     public storageService: StorageService,
-    private cp: ChangeDetectorRef,
-    private controllerService: ControllerService
+    private cp: ChangeDetectorRef
   ) {}
 
   ngAfterViewInit(): void {
@@ -51,9 +49,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
         allowOutsideClick: false
       });
     });
-  }
-  ngOnInit(): void {
-    
   }
 
   /**

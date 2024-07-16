@@ -1,3 +1,9 @@
+.createUsers {
+    font-family: 'Ubuntu';
+}
+.modal {
+    font-family: 'Ubuntu';
+}
 .loading, .loadingOus {
     width: 100%;
     height: 100%;
