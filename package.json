@@ -16,7 +16,8 @@
         "provider": "github",
         "owner": "tronilo53",
         "repo": "ADManagement",
-        "private": true
+        "private": true,
+        "releaseType": "release"
       }
     },
     "asar": false,
@@ -38,7 +39,7 @@
     }
   },
   "name": "ADManagement",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha.1",
   "main": "main.mjs",
   "type": "module",
   "license": "MIT",
