@@ -95,6 +95,20 @@ export class StorageService {
         case 'Tasty Licorice': addClass = 'badge text-bg-danger'; break;
         case 'Gray Storm': addClass = 'badge text-bg-secondary'; break;
       }
+    }else if(type === 'text') {
+      switch(this.getConfig().theme) {
+        case 'Sweet Honey': addClass = 'text-warning'; break;
+        case 'Healthy Sky': addClass = 'text-primary'; break;
+        case 'Tasty Licorice': addClass = 'text-danger'; break;
+        case 'Gray Storm': addClass = 'text-secondary'; break;
+      }
+    }else if(type === 'progress-bar') {
+      switch(this.getConfig().theme) {
+        case 'Sweet Honey': addClass = 'progress-bar bg-warning'; break;
+        case 'Healthy Sky': addClass = 'progress-bar bg-primary'; break;
+        case 'Tasty Licorice': addClass = 'progress-bar bg-danger'; break;
+        case 'Gray Storm': addClass = 'progress-bar bg-secondary'; break;
+      }
     }
     //Devuelve la/s clases css
     return addClass;

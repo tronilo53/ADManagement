@@ -1,9 +1,9 @@
 <div class="loadDownload none" #loadingProcess>
     <div class="content-download">
-        <h2 class="text-primary">Descargando Actualización</h2>
+        <h2 [class]="storageService.getThemeCss('text')">Descargando Actualización</h2>
         <h4>Espere...</h4>
         <div class="progress mt-5" role="progressbar" aria-label="Example with label" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-bar" #process></div>
+            <div [class]="storageService.getThemeCss('progress-bar')" #process></div>
         </div>
     </div>
 </div>
