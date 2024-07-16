@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { StorageService } from '../../services/storage.service';
@@ -8,7 +8,7 @@ import { StorageService } from '../../services/storage.service';
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit {
 
   /**
    * *Propiedades
@@ -19,11 +19,21 @@ export class NavbarComponent {
 
   constructor(
     private router: Router,
-    public storageService: StorageService
+    public storageService: StorageService,
+    private cp: ChangeDetectorRef
   ) {
     //Se intercepta la ruta que está en curso y se guarda en la variable 'currentUrl'
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
       this.currentUrl = event.urlAfterRedirects;
+    });
+  }
+
+  ngOnInit(): void {
+    /**
+     * !Subscripción obligatoria para detectar los cambios del BehaviorSubject
+     */
+    this.storageService.getConfigObservable().subscribe(config => {
+      this.cp.detectChanges();
     });
   }
 

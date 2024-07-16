@@ -186,6 +186,34 @@ ipcMain.on('New-ADUser', (event, data) => {
         event.sender.send('New-ADUser', { response: 'Success', data: stdout });
     });
 });
+//Guarda los datos de configuración de la App
+ipcMain.on('setConfig', (event, args) => {
+    const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
+    fs.readFile(`${path}/config.xml`, 'utf-8', (error, data) => {
+        xml2js.parseString(data, (error, result) => {
+            result.config.avatar[0].$.rel = args.avatar;
+            result.config.theme[0].$.rel = args.theme;
+
+            const builder = new xml2js.Builder();
+            const xml = builder.buildObject(result);
+
+            fs.writeFile(`${path}/config.xml`, xml, (err) => {
+                if(err) event.sender.send('setConfig', '002');
+                else event.sender.send('setConfig', '001');
+            });
+        });
+    });
+});
+//Devuelve la configuración del .xml
+ipcMain.on('getConfig', (event, args) => {
+    const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
+    fs.readFile(`${path}/config.xml`, 'utf-8', (error, data) => {
+        xml2js.parseString(data, (error, json) => {
+            const dataSend = { avatar: json.config.avatar[0].$.rel, theme: json.config.theme[0].$.rel };
+            event.sender.send('getConfig', { dataSend });
+        });
+    });
+});
 
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());

@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { StorageService } from '../../services/storage.service';
 import { ControllerService } from '../../services/controller.service';
+import { IpcService } from '../../services/ipc.service';
 
 @Component({
   selector: 'app-profile',
@@ -17,7 +18,9 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     public storageService: StorageService,
-    private controllerService: ControllerService
+    private controllerService: ControllerService,
+    private ipcService: IpcService,
+    private cp: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -63,12 +66,34 @@ export class ProfileComponent implements OnInit {
       if(this.avatarSelect === this.storageService.getConfig().avatar) this.controllerService.createAlert('info', 'Este avatar ya está establecido');
       //Si se selecciona un avatar diferente...
       else {
-        //Se establece el nuevo avatar
-        this.storageService.setConfig('avatar', this.avatarSelect);
-        //Se restablece el avatar
-        this.avatarSelect = null;
-        //Se muestra una notificación
-        this.controllerService.createToast('top-end', 'success', 'Avatar establecido!');
+        //Se muestra el loading
+        this.controllerService.createLoading();
+        //Se crea un nuevo Objeto con el nuevo avatar
+        const data: any = {...this.storageService.getConfig(), avatar: this.avatarSelect};
+        //IPC para guardar los datos de configuracion en el .xml
+        this.ipcService.send('setConfig', data);
+        this.ipcService.removeAllListeners('setConfig');
+        this.ipcService.on('setConfig', (event, args) => {
+          //Si se guardan los datos correctamente...
+          if(args === '001') {
+            //Se modifica la configuración en el sessionStorage y en el Behavior
+            this.storageService.setConfig(data);
+            //Se restablece el avatar
+            this.avatarSelect = null;
+            //Se oculta el loading
+            this.controllerService.destroyLoading();
+            //Se muestra una notificación
+            this.controllerService.createToast('top-end', 'success', 'Avatar Actualizado!');
+            //Se detectan los cambios en la vista
+            this.cp.detectChanges();
+          //Si los datos no se guardan correctamente...
+          }else {
+            //Se oculta el loading
+            this.controllerService.destroyLoading();
+            //Se muestra una alerta
+            this.controllerService.createAlert('error', 'No se han guardardado los datos de Configuración');
+          }
+        });
       }
     }
   }
@@ -77,16 +102,38 @@ export class ProfileComponent implements OnInit {
    * *Function: Establece el Tema en el storageService
    */
   public setTheme(): void {
+    //Se muestra el loading
+    this.controllerService.createLoading();
     //Si el tema seleccionado es igual al tema actual, se muestra una alerta
     if(this.selectedTheme === this.storageService.getConfig().theme) this.controllerService.createAlert('info', 'Este tema ya está aplicado');
     //Si el tema seleccionado es distinto...
     else {
-      //Se establece el nuevo tema
-      this.storageService.setConfig('theme', this.selectedTheme);
-      //Se restablece el tema con el aplicado
-      this.selectedTheme = this.storageService.getConfig().theme;
-      //Se muestra una notificación
-      this.controllerService.createToast('top-end', 'success', 'Tema establecido!');
+      //Se crea un nuevo Objeto
+      const data: any = {...this.storageService.getConfig(), theme: this.selectedTheme};
+      //IPC para guardar los datos de configuracion en el .xml
+      this.ipcService.send('setConfig', data);
+      this.ipcService.removeAllListeners('setConfig');
+      this.ipcService.on('setConfig', (event, args) => {
+        //Si se guardan los datos correctamente...
+        if(args === '001') {
+          //Se guarda la configuracion en el sessionStorage y en el Behavior
+          this.storageService.setConfig(data);
+          //Se restablece el tema con el aplicado
+          this.selectedTheme = this.storageService.getConfig().theme;
+          //Se oculta el loading
+          this.controllerService.destroyLoading();
+          //Se muestra una notificación
+          this.controllerService.createToast('top-end', 'success', 'Tema Actualizado!');
+          //Se detectan los cambios en la vista
+          this.cp.detectChanges();
+        //Si los datos no se guardan correctamente...
+        }else {
+          //Se oculta el loading
+          this.controllerService.destroyLoading();
+          //Se muestra una alerta
+          this.controllerService.createAlert('error', 'No se han guardardado los datos de Configuración');
+        }
+      });
     }
   }
 }

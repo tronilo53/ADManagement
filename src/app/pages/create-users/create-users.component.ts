@@ -1,8 +1,9 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { TreeNode } from 'primeng/api';
 
-import Swal from 'sweetalert2';
 import { IpcService } from '../../services/ipc.service';
+import { StorageService } from '../../services/storage.service';
+import { ControllerService } from '../../services/controller.service';
 
 /**
  * *Declaración Global para manejar Bootstrap
@@ -64,6 +65,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
   constructor(
     private renderer: Renderer2,
     private ipcService: IpcService,
+    public storageService: StorageService,
+    private controllerService: ControllerService,
     private cd: ChangeDetectorRef
   ) {}
 
@@ -130,25 +133,25 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
       if(this.data.upn === '???') this.renderer.addClass(this.upn.nativeElement, 'border__error');
       if(this.data.password === '') this.renderer.addClass(this.password.nativeElement, 'border__error');
       //Se muestra una alerta
-      this.alert('Todos los campos son requeridos');
+      this.controllerService.createAlert('info', 'Todos los campos son requeridos');
     //Si todos los campos están rellenos...
     }else {
       //Si el manager no es un formato válido...
       if(!this.regExEmail.test(this.data.manager)) {
-        this.alert('El email introducido en "Manager" no es válido');
+        this.controllerService.createAlert('info', 'El email introducido en "Manager" no es válido');
         this.renderer.addClass(this.manager.nativeElement, 'border__error');
       //Si CopiaDe no es un formato válido...
       }else if(!this.regExEmail.test(this.data.copia)) {
-        this.alert('El email introducido en "Copia De" no es válido');
+        this.controllerService.createAlert('info', 'El email introducido en "Copia De" no es válido');
         this.renderer.addClass(this.copia.nativeElement, 'border__error');
       //Si la contraseña no es un formato válido...
       }else if(!this.regExPassword.test(this.data.password)) {
-        this.alert('La contraseña no cumple con los requisitos comunes de Active Directory');
+        this.controllerService.createAlert('info', 'La contraseña no cumple con los requisitos comunes de Active Directory');
         this.renderer.addClass(this.password.nativeElement, 'border__error');
       //Si todo el formulario está ok...
       }else {
         //Si no se ha elegido una unidad organizativa...
-        if(!this.selectedOu) this.alert('La Unidad Organizativa de destino es requerida');
+        if(!this.selectedOu) this.controllerService.createAlert('info', 'La Unidad Organizativa de destino es requerida');
         //Si se ha elegido una unidad Organizativa...
         else {
           //Si es un nombre compuesto...
@@ -157,9 +160,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
             const newName: string = this.data.nombre.replace(' ', '');
             //Se empiezan a tratar los datos pasando por parámetro el nombre modificado
             this.processData(newName);
-          }
           //Si no es un nombre compuesto se empiezan a tratar los datos de forma normal
-          else this.processData();
+          }else this.processData();
         }
       }
     }
@@ -207,11 +209,11 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
       this.data.copia === '' ||
       this.data.upn === '???' ||
       this.data.password === ''
-    ) this.alert('Antes de Seleccionar una Unidad Organizativa, tienes que rellenar los demás campos');
+    ) this.controllerService.createAlert('info', 'Antes de Seleccionar una Unidad Organizativa, tienes que rellenar los demás campos');
     //Si todos los campos están rellenos...
     else {
-      //Se muestra el loading de OU
-      this.renderer.removeClass(this.loadingOus.nativeElement, 'none');
+      //Se muestra el loading
+      this.controllerService.createLoading();
       //ipc para obtener las Unidades Organizativas
       this.ipcService.send('getOus');
       this.ipcService.removeAllListeners('getOus');
@@ -220,8 +222,8 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
         this.ous = [...JSON.parse(data)];
         //Corrige defectos del JSON recibido
         this.modifyTreeNodes(this.ous);
-        //Se oculta el loading de OU
-        this.renderer.addClass(this.loadingOus.nativeElement, 'none');
+        //Se oculta el loading
+        this.controllerService.destroyLoading();
         //Se muestra el modal.
         this.modalInstance.show();
         //Se detectan los cambios en la vista.
@@ -249,7 +251,7 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
    */
   public selectOu(): void {
     //Si no hay un nodo actual seleccionado se muestra una alerta
-    if(this.selectedOu == null) this.alert('No se ha seleccionado ninguna OU');
+    if(this.selectedOu == null) this.controllerService.createAlert('info', 'No se ha seleccionado ninguna OU');
     //Si hay un nodo actual seleccionado...
     else {
       //el nodo ya seleccionado(vista) será igual que el nodo actual seleccionado
@@ -264,28 +266,6 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
       //Si el modal no está disponible se hace debug en consola
       else console.log('modalInstance no está inicializado');
     }
-  }
-
-  /**
-   * *Function: Muestra una alerta
-   * @param text Mensaje de la alerta
-   */
-  private alert(text: string): void {
-    Swal.fire({
-      icon: 'info',
-      text,
-      allowOutsideClick: false
-    });
-  }
-
-  private notification(): void {
-    Swal.fire({
-      position: 'center',
-      icon: "success",
-      title: "Usuario Creado Con Éxito",
-      showConfirmButton: false,
-      timer: 1500
-    });
   }
 
   /**
@@ -336,6 +316,7 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     this.ipcService.on('New-ADUser', (event, argsNew) => {
       //Si la respuesta es satisfactoria...
       if(argsNew.response === 'Success') {
+        //Se borran los espacios de la respuesta
         argsNew.data = argsNew.data.replace(/\s/g, '');
         //Si se crea el usuario...
         if(argsNew.data === '001') {
@@ -346,30 +327,30 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
           //Se resetea la Seleccion(Vista) de la OU
           this.selectedOuViewInit = null;
           //Se oculta el Loading
-          this.renderer.addClass(this.loading.nativeElement, 'none');
+          this.controllerService.destroyLoading();
           //Se muestra una notificación
-          this.notification();
+          this.controllerService.createToast('top-end', 'success', 'Usuario Creado con éxito!');
           //Se detectan los cambios
           this.cd.detectChanges();
         //Si el usuario ya existe...
         }else if(argsNew.data === '002') {
           //Se oculta el loading
-          this.renderer.addClass(this.loading.nativeElement, 'none');
+          this.controllerService.destroyLoading();
           //Se muestra una alerta
-          this.alert('Este usuario ya existe en AD o el nombre de usuario es el mismo que alguno ya creado.');
+          this.controllerService.createAlert('info', 'Este usuario ya existe en AD o el nombre de usuario es el mismo que alguno ya creado.');
         //Si el usuario no se crea...
         }else {
           //Se oculta el loading
-          this.renderer.addClass(this.loading.nativeElement, 'none');
+          this.controllerService.destroyLoading();
           //Se muestra una alerta
-          this.alert('No se ha podido crear el usuario, inténtalo de nuevo o contacta con Soporte.');
+          this.controllerService.createAlert('error', 'No se ha podido crear el usuario, inténtalo de nuevo o contacta con Soporte.');
         }
       //Si la respuesta da error...
       }else {
         //Se oculta el loading
-        this.renderer.addClass(this.loading.nativeElement, 'none');
+        this.controllerService.destroyLoading();
         //Se muestra una alerta
-        this.alert('Ha habido un error al crear el usuario en Active Directory. Por favor, inténtalo de nuevo o contacta con Soporte');
+        this.controllerService.createAlert('error', 'Ha habido un error al crear el usuario en Active Directory. Por favor, inténtalo de nuevo o contacta con Soporte');
       }
     });
   }
@@ -394,18 +375,18 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
         //Si no se encuentran grupos...
         }else {
           //Se oculta el Loading
-          this.renderer.addClass(this.loading.nativeElement, 'none');
+          this.controllerService.destroyLoading();
           //Se muestra una alerta
-          this.alert('Parece que el usuario de "CopiaDe" no está incluido en ningún grupo');
+          this.controllerService.createAlert('info', 'Parece que el usuario de "CopiaDe" no está incluido en ningún grupo');
           //Se pone el campo 'CopiaDe' en rojo
           this.renderer.addClass(this.copia.nativeElement, 'border__error');
         }
       //Si la respuesta da error
       }else {
         //Se oculta el loading
-        this.renderer.addClass(this.loading.nativeElement, 'none');
+        this.controllerService.destroyLoading();
         //Se muestra una alerta
-        this.alert('Ha habido un error al tratar de buscar los grupos del usuario referenciado. Por favor, inténtalo de nuevo o contacta con Soporte');
+        this.controllerService.createAlert('info', 'Ha habido un error al tratar de buscar los grupos del usuario referenciado. Por favor, inténtalo de nuevo o contacta con Soporte');
         //Se pone el campo 'CopiaDe' en rojo
         this.renderer.addClass(this.copia.nativeElement, 'border__error');
       }
@@ -418,7 +399,7 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
    */
   private processData(newName?: string): void {
     //Muestra el Loading
-    this.renderer.removeClass(this.loading.nativeElement, 'none');
+    this.controllerService.createLoading();
     //Guarda la OU elegida
     this.data.ou = this.selectedOu.data
     //Crea el objeto temporal con algunos datos
@@ -461,16 +442,19 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
                 //Llama a la funcion para obtener los grupos del usuario de 'CopiaDe'
                 this.getMemberOf(JSON.parse(args.data).DistinguishedName, dataSend);
               }else {
-                this.renderer.addClass(this.loading.nativeElement, 'none');
-                this.alert('Parece que el usuario que intentas copiar no existe en Active Directory');
+                //Se oculta el loading
+                this.controllerService.destroyLoading();
+                //Se muestra una alerta
+                this.controllerService.createAlert('info', 'Parece que el usuario que intentas copiar no existe en Active Directory');
+                //Se pone el campo 'copia' en rojo
                 this.renderer.addClass(this.copia.nativeElement, 'border__error');
               }
             //Si la respuesta de 'CopiaDe' da error...
             }else {
-              //Se ocuelta el Loading
-              this.renderer.addClass(this.loading.nativeElement, 'none');
+              //Se oculta el Loading
+              this.controllerService.destroyLoading();
               //Se muestra una alerta
-              this.alert('Ha habido un error al tratar de buscar al Copia De referenciado/a. Por favor, inténtalo de nuevo o contacta con Soporte');
+              this.controllerService.createAlert('info', 'Ha habido un error al tratar de buscar al Copia De referenciado/a. Por favor, inténtalo de nuevo o contacta con Soporte');
               //Se pone el campo 'copia' en rojo
               this.renderer.addClass(this.copia.nativeElement, 'border__error');
             }
@@ -478,18 +462,18 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
         //Si el 'manager' no es encontrado...
         }else {
           //Se oculta el Loading
-          this.renderer.addClass(this.loading.nativeElement, 'none');
+          this.controllerService.destroyLoading();
           //Se muestra una alerta
-          this.alert('Parece que el manager referenciado no existe en Active Directory');
+          this.controllerService.createAlert('info', 'Parece que el manager referenciado no existe en Active Directory');
           //Se pone el campo 'manager' en rojo
           this.renderer.addClass(this.manager.nativeElement, 'border__error');
         }
       //Si la respuesta del 'manager' da error...
       }else {
         //Se oculta el loading
-        this.renderer.addClass(this.loading.nativeElement, 'none');
+        this.controllerService.destroyLoading();
         //Se muestra una alerta
-        this.alert('Ha habido un error al tratar de buscar al manager referenciado. Por favor, inténtalo de nuevo o contacta con Soporte');
+        this.controllerService.createAlert('info', 'Ha habido un error al tratar de buscar al manager referenciado. Por favor, inténtalo de nuevo o contacta con Soporte');
         //Se pone el campo 'manager' en rojo
         this.renderer.addClass(this.manager.nativeElement, 'border__error');
       }

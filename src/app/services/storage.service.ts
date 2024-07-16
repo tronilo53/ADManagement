@@ -1,11 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { IpcService } from './ipc.service';
-
-interface Config {
-  avatar: string;
-  theme: string;
-}
+import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -15,41 +9,42 @@ export class StorageService {
   /**
    * *Propiedades
    */
-  private configBehavior: BehaviorSubject<string>;
+  public configBehavior: BehaviorSubject<any>;
   private avatars: string[] = ['Batman-256.png', 'Capitan-America-256.png', 'Daredevil-256.png', 'Green-Lantern-256.png', 'Invisible-Woman-256.png', 'Mister-Fantastic-256.png', 'Namor-256.png', 'Silver-Surfer-256.png', 'Superman-256.png', 'the-Thing-256.png'];
   private themes: string[] = ['Sweet Honey', 'Healthy Sky', 'Tasty Licorice', 'Gray Storm'];
 
-  constructor(
-    private ipcService: IpcService
-  ) {
-    //Se instancia el BehaviorSubject con los datos del localStorage
-    this.configBehavior = new BehaviorSubject<string>(localStorage.getItem('config'));
+  constructor() {
+    this.configBehavior = new BehaviorSubject<any>(JSON.parse(sessionStorage.getItem('config')));
   }
 
   /**
-   * *Function: Se establece el avatar
-   * @param typeData Tipo de dato a modificar
-   * @param data Dato modificable
+   * *Function: Se establece la configuracion en el sessionStorage
+   * @param data objeto pasado
    */
-  public setConfig(typeData: string, data: string): void {
-    //Se obtiene el valor del BehaviorSubject y se transforma a JSON con tipo Config
-    const currentConfig: Config = JSON.parse(this.configBehavior.getValue());
-    //Se crea una configuracion vacia
-    let newConfig: Config = {theme: '', avatar: ''};
-    //Se crea un nuevo objeto de tipo Config solo modificando el avatar o el tema
-    if(typeData === 'avatar') newConfig = {...currentConfig, avatar: data};
-    else newConfig = {...currentConfig, theme: data};
-    //Se guardan los nuevos datos en el localStorage
-    localStorage.setItem('config', JSON.stringify(newConfig));
+  public setConfig(data: any): void {
+    //Se actualiza o se crea el sessionStotage
+    sessionStorage.setItem('config', JSON.stringify(data));
     //Se modifica el BehaviorSubject con los nuevos datos
-    this.configBehavior.next(JSON.stringify(newConfig));
-  } 
+    this.configBehavior.next(data);
+    console.log("Config updated:", data); // Agrega esto para verificar la emisión
+  }
 
   /**
    * *Funtion: Obtiene los datos recientes del BehaviorSubject
    * @returns Devuelve un objeto de tipo Config
    */
-  public getConfig(): Config { return JSON.parse(this.configBehavior.getValue()) }
+  public getConfig(): any {
+    return this.configBehavior.getValue();
+  }
+
+  /**
+   * !Función Valida para los cambios en el Navbar
+   * *Function: Obtiene los datos recientes de BehaviorSubject
+   * @returns Devuelve un Observable para subscribirse
+   */
+  public getConfigObservable(): Observable<any> {
+    return this.configBehavior.asObservable();
+  }
 
   /**
    * *Function: Obtiene los avatares
@@ -71,11 +66,9 @@ export class StorageService {
   public getThemeCss(type: string): string {
     //Se crea una variable vacia de tipo String
     let addClass: string = '';
-    //Se obtienen los datos actuales del BehaviorSubject en tipo Config
-    const currentConfig: Config = JSON.parse(this.configBehavior.getValue());
     //Si el elemento recibido es un Botón Se aplica la clase correspondiente dependiendo del tema aplicado
     if(type === 'button') {
-      switch(currentConfig.theme) {
+      switch(this.getConfig().theme) {
         case 'Sweet Honey': addClass = 'btn btn-warning'; break;
         case 'Healthy Sky': addClass = 'btn btn-primary'; break;
         case 'Tasty Licorice': addClass = 'btn btn-danger'; break;
@@ -83,14 +76,14 @@ export class StorageService {
       }
     //Si el elemento recibido es un Nav Se aplica la clase correspondiente dependiendo del tema aplicado
     }else if(type === 'nav') {
-      switch(currentConfig.theme) {
+      switch(this.getConfig().theme) {
         case 'Sweet Honey': addClass = 'bg-warning'; break;
         case 'Healthy Sky': addClass = 'bg-primary'; break;
         case 'Tasty Licorice': addClass = 'bg-danger'; break;
         case 'Gray Storm': addClass = 'bg-secondary'; break;
       }
     }else if(type === 'alert') {
-      switch(currentConfig.theme) {
+      switch(this.getConfig().theme) {
         case 'Sweet Honey': addClass = 'alert alert-warning'; break;
         case 'Healthy Sky': addClass = 'alert alert-primary'; break;
         case 'Tasty Licorice': addClass = 'alert alert-danger'; break;

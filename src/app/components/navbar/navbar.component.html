@@ -1,4 +1,4 @@
-<nav class="navbar navbar-expand-md sticky-top {{ storageService.getThemeCss('nav') }}" #navbarTheme>
+<nav class="navbar navbar-expand-md sticky-top {{ storageService.getThemeCss('nav') }}">
     <div class="container-fluid">
         <a class="navbar-brand">
             <img src="assets/Henry-Schein.png" alt="Henry-Schein.png" width="130" height="30">
@@ -27,7 +27,8 @@
                 </li>
             </ul>
             <form class="d-flex" role="search">
-                <img class="avatar" src="assets/avatars/{{ storageService.getConfig().avatar }}" alt="avatar.png">
+                <!--!Se detectan los cambios con el Pipe 'async' si no, falla el avatar-->
+                <img class="avatar" [src]="'assets/avatars/' + (storageService.configBehavior | async)?.avatar" alt="avatar.png">
                 <input class="form-control me-2" disabled type="text" placeholder="Buscar" aria-label="Search">
                 <button class="btn btn-outline-light disabled" type="button">Buscar</button>
             </form>

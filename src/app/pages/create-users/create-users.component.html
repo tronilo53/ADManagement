@@ -1,20 +1,3 @@
-<div class="loading none" #loading>
-    <div class="loading-content">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-        <h2>Espere...</h2>
-    </div>
-</div>
-<div class="loadingOus animate__animated animate__fadeIn none" #loadingOus>
-    <div class="loading-content">
-        <h2>Cargando...</h2>
-        <h4>Unidades Organizativas</h4>
-        <div class="spinner-border mt-2" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-</div>
 <div class="createUsers mb-4 animate__animated animate__fadeIn">
     <div class="container">
         <div class="row mt-3">
@@ -103,7 +86,7 @@
             </div>
             <div class="row mt-4">
                 <div class="d-grid gap-2">
-                    <button class="btn btn-primary" type="button" (click)="validateData()">Crear Usuario</button>
+                    <button [class]="storageService.getThemeCss('button')" type="button" (click)="validateData()">Crear Usuario</button>
                 </div>
             </div>
             <div class="row mt-3">

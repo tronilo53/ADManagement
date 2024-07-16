@@ -7,6 +7,7 @@ import { CreateUsersComponent } from './pages/create-users/create-users.componen
 import { DashboardComponent } from './pages/shared/dashboard/dashboard.component';
 import { InitComponent } from './pages/init/init.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { ConfigGuard } from './guards/config.guard';
 
 const routes: Routes = [
   {path: 'Preload', component: PreloadComponent},
@@ -14,6 +15,7 @@ const routes: Routes = [
   {
     path: 'Dashboard', 
     component: DashboardComponent,
+    canActivateChild: [ConfigGuard],
     children: [
       {path: 'Home', component: HomeComponent},
       {path: 'CreateUsers', component: CreateUsersComponent },

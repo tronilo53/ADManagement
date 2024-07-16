@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, Render
 import { IpcService } from '../../services/ipc.service';
 import Swal from 'sweetalert2';
 import { StorageService } from '../../services/storage.service';
+import { ControllerService } from '../../services/controller.service';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +22,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private ipcService: IpcService,
     private renderer: Renderer2,
     public storageService: StorageService,
-    private cp: ChangeDetectorRef
+    private cp: ChangeDetectorRef,
+    private controllerService: ControllerService
   ) {}
 
   ngAfterViewInit(): void {

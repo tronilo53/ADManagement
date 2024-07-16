@@ -1,5 +1,9 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { StorageService } from '../../services/storage.service';
+import { IpcService } from '../../services/ipc.service';
+import { ControllerService } from '../../services/controller.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-init',
@@ -11,12 +15,17 @@ export class InitComponent implements OnInit {
   /**
    * *Propiedades
    */
-  @ViewChild('loading') loading: ElementRef;
   public items: string[] = ['Batman-256.png', 'Capitan-America-256.png', 'Daredevil-256.png', 'Green-Lantern-256.png', 'Invisible-Woman-256.png', 'Mister-Fantastic-256.png', 'Namor-256.png', 'Silver-Surfer-256.png', 'Superman-256.png', 'the-Thing-256.png'];
   public avatarSelect: string | null = null;
   public themeSelected: string = 'Sweet Honey';
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private renderer: Renderer2,
+    private storageService: StorageService,
+    private ipcService: IpcService,
+    private controllerService: ControllerService
+  ) {}
 
   ngOnInit(): void {
     
@@ -41,15 +50,35 @@ export class InitComponent implements OnInit {
    * *Function: Finalizar Init
    */
   public finished(): void {
+    //Se muestra el loading
+    this.controllerService.createLoading();
     //Se crean los datos de configuración
     const data: any = {
       avatar: this.avatarSelect ? this.avatarSelect : 'default.png',
       theme: this.themeSelected
     };
-    //Se guarda en el localStorage la configuracion
-    localStorage.setItem('config', JSON.stringify(data));
-    //Redirige al Dashboard
-    this.router.navigate(['/Dashboard']);
+    //IPC para guardar los datos de configuracion en el .xml
+    this.ipcService.send('setConfig', data);
+    this.ipcService.removeAllListeners('setConfig');
+    this.ipcService.on('setConfig', (event, args) => {
+      //Si se guardan los datos correctamente...
+      if(args === '001') {
+        //Se guarda la configuración en el sessionStorage y se modifica el BehaviorSubject
+        this.storageService.setConfig(data);
+        //Se oculta el loading
+        this.controllerService.destroyLoading();
+        //Redirige al Dashboard
+        this.router.navigate(['/Dashboard']);
+      //Si los datos no se guardan correctamente...
+      }else {
+        //Se oculta el loading
+        this.controllerService.destroyLoading();
+        //Se crea configuración por defecto solo para el sessionStorage
+        this.storageService.setConfig({ avatar: 'default.png', theme: 'Sweet Honey' });
+        //Se muestra una alerta con duración y redirección
+        this.controllerService.defaultDataError();
+      }
+    });
   }
 
   /**
