@@ -252,5 +252,8 @@ autoUpdater.on( 'update-downloaded', () => {
     appWin.webContents.send( 'update_downloaded' );
 });
 autoUpdater.on( 'error', ( error ) => {
-    appWin.webContents.send( 'error_update' );
+    const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
+    fs.writeFile(`${path}/log.txt`, error, (errorReq) => {
+        appWin.webContents.send( 'error_update' );
+    });
 });

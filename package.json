@@ -39,7 +39,7 @@
     }
   },
   "name": "ADManagement",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0",
   "main": "main.mjs",
   "type": "module",
   "license": "MIT",
@@ -49,9 +49,7 @@
     "ng": "ng",
     "start": "electron .",
     "build": "ng build && electron-builder",
-    "build:alpha": "ng build && npm version prerelease --preid=alpha && electron-builder --publish always",
-    "build:beta": "ng build && npm version prerelease --preid=beta && electron-builder --publish always",
-    "build:stable": "ng build && npm version patch && electron-builder --publish always"
+    "build:p": "ng build && electron-builder --publish always"
   },
   "private": true,
   "dependencies": {

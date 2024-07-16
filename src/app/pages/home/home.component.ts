@@ -45,7 +45,7 @@ export class HomeComponent implements AfterViewInit {
     this.ipcService.on('error_update', (event, data) => {
       Swal.fire({
         icon: 'error',
-        text: 'Ha habido un error al descargar la actualización',
+        text: 'Ha habido un error en la actualización. Por favor, revisa los log',
         allowOutsideClick: false
       });
     });
@@ -63,7 +63,8 @@ export class HomeComponent implements AfterViewInit {
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       cancelButtonText: 'Cancelar',
-      confirmButtonText: "Si, descargar ahora"
+      confirmButtonText: "Si, descargar ahora",
+      allowOutsideClick: false
     }).then((result) => {
       //Si se clickea a 'Si, descargar ahora'...
       if (result.isConfirmed) {
