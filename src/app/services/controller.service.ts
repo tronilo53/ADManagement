@@ -48,8 +48,8 @@ export class ControllerService {
   /**
    * *Function: Crea un Loading
    */
-  public createLoading(): void {
-    Swal.fire({text: 'Espere...', allowOutsideClick: false});
+  public createLoading(text: string = 'espere'): void {
+    Swal.fire({text, allowOutsideClick: false});
     Swal.showLoading();
   }
 

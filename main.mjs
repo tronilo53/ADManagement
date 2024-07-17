@@ -262,6 +262,9 @@ ipcMain.on( 'getVersion', ( event, args ) => {
  * * Eventos de Actualizaciones Automáticas
  */
 const checks = () => {
+    autoUpdater.on( 'checking-for-update', () => {
+        appWin.webContents.send( 'checking_for_update' );
+    });
     autoUpdater.on( 'update-available', ( info ) => {
         appWin.webContents.send( 'update_available', info );
     });

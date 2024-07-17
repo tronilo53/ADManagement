@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Renderer2, Vie
 import { IpcService } from '../../services/ipc.service';
 import Swal from 'sweetalert2';
 import { StorageService } from '../../services/storage.service';
+import { ControllerService } from '../../services/controller.service';
 
 @Component({
   selector: 'app-home',
@@ -21,15 +22,25 @@ export class HomeComponent implements AfterViewInit {
     private ipcService: IpcService,
     private renderer: Renderer2,
     public storageService: StorageService,
+    private controllerService: ControllerService,
     private cp: ChangeDetectorRef
   ) {}
 
   ngAfterViewInit(): void {
     //Se obtiene la version de la App
     this.getVersionApp();
+    //Escucha si está comprobando actualizaciones
+    this.ipcService.on('checking_for_update', (event, data) => {
+      this.controllerService.createLoading('Buscando Actualizaciones...');
+    });
     //Escucha si hay una actualización disponible
     this.ipcService.on('update_available', (event, data) => {
       this.update_available(data);
+    });
+    //Escucha si no hay ninguna actualización disponible
+    this.ipcService.on('update_not_available', (event, data) => {
+      if(Swal) this.controllerService.destroyLoading();
+      this.controllerService.createMixin('top-end', 'info', 'No hay Actualizaciones');
     });
     //Escucha el progreso de la descarga
     this.ipcService.on('download_progress', (event, progressObj) => {
