@@ -29,7 +29,7 @@ export class HomeComponent implements AfterViewInit {
     this.getVersionApp();
     //Escucha si hay una actualización disponible
     this.ipcService.on('update_available', (event, data) => {
-      this.update_available();
+      this.update_available(data);
     });
     //Escucha el progreso de la descarga
     this.ipcService.on('download_progress', (event, progressObj) => {
@@ -54,10 +54,10 @@ export class HomeComponent implements AfterViewInit {
   /**
    * *Function: Muestra una alerta de actualización disponible
    */
-  private update_available(): void {
+  private update_available(data: any): void {
     Swal.fire({
       title: "Actualización Disponible!",
-      text: "Hay una actualización disponible, ¿Quieres descargarla ahora?",
+      html: `Hay una actualización disponible<br>Versión: <strong>${data.version}</strong><br>¿Quieres descargarla ahora?`,
       icon: "info",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",

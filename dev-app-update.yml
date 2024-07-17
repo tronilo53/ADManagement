@@ -1,0 +1,4 @@
+provider: generic
+url: https://rivendel.com.es/updates/
+updaterCacheDirName: ADManagement
+disableWebInstaller: true

@@ -36,13 +36,22 @@ let tray = null;
  */
 let menuTemplateDev = [
     {
-        label: 'Vista',
+        label: 'Archivo',
         submenu: [
-            { role: 'toggledevtools' }
+            { role: 'toggledevtools' },
+            { label: 'Comprobar Actualizaciones', click: () => autoUpdater.checkForUpdatesAndNotify() }
         ]
     }
 ];
-const menuDev = Menu.buildFromTemplate( menuTemplateDev );
+let menuTemplateProd = [
+    {
+        label: 'Archivo',
+        submenu: [
+            { label: 'Comprobar Actualizaciones', click: () => autoUpdater.checkForUpdatesAndNotify() }
+        ]
+    }
+];
+const menu = Menu.buildFromTemplate( isDev ? menuTemplateDev : menuTemplateProd );
 
 /**
  * * Función de ventana Preload
@@ -74,29 +83,34 @@ function createPreload() {
         const pathOu = isDev ? `${PATH_ASSETS_DEV}/scripts/Get-ADOrganizationalUnit.ps1` : `${PATH_ASSETS_PROD}/scripts/Get-ADOrganizationalUnit.ps1`;
         execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
             //Si existe un error...
-            if (error) {
+            if (error || stderr) {
                 //Si existe un JSON llamado 'ous' lo elimina
                 if(store.get('ous')) store.delete('ous');
                 //Manda por el canal 'getOusError' el error
                 appPrelaod.webContents.send('getOusError');
-                //Sale de la ejecución
-                return;
+                setTimeout(() => {
+                    //Cierra la ventana de Preload
+                    appPrelaod.close();
+                    //Crea la ventana principal
+                    createHome();
+                }, 3000);
+            }else {
+                //Si el resultado es satisfactorio y existe un JSON llamado 'ous'...
+                if(store.get('ous')){
+                    //Elimina el JSON
+                    store.delete('ous');
+                    //Establece un nuevo JSON llamado 'ous' guardando las Unidades Organizativas
+                    store.set('ous', stdout);
+                //Si no existe un JSON llamado 'ous' lo crea guardando las Unidades Organizativas
+                }else store.set('ous', stdout);
+                appPrelaod.webContents.send('getOusSuccess');
+                setTimeout(() => {
+                    //Cierra la ventana de Preload
+                    appPrelaod.close();
+                    //Crea la ventana principal
+                    createHome();
+                }, 3000);
             }
-            //Si el resultado es satisfactorio y existe un JSON llamado 'ous'...
-            if(store.get('ous')){
-                //Elimina el JSON
-                store.delete('ous');
-                //Establece un nuevo JSON llamado 'ous' guardando las Unidades Organizativas
-                store.set('ous', stdout);
-            //Si no existe un JSON llamado 'ous' lo crea guardando las Unidades Organizativas
-            }else store.set('ous', stdout);
-            appPrelaod.webContents.send('getOusSuccess');
-            setTimeout(() => {
-                //Cierra la ventana de Preload
-                appPrelaod.close();
-                //Crea la ventana principal
-                createHome();
-            }, 3000);
         });
     });
     //Cuando se llama a .close() la ventana Preload se cierra
@@ -120,14 +134,22 @@ function createHome() {
         });
     //Si se está en modo de desarrollo...
     appWin.setIcon(isDev ? `${PATH_ASSETS_DEV}/favicon.png` : `${PATH_ASSETS_PROD}/favicon.png`);
-    appWin.setMenu(isDev ? menuDev : null);
+    appWin.setMenu(menu);
     appWin.loadURL(isDev ? 'http://localhost:4200/' : `${PATH_DIST_PROD}/browser/index.html`);
     if(isDev) appWin.webContents.openDevTools({ mode: 'detach' });
     
     //Cuando la ventana está lista para ser mostrada...
     appWin.once( "ready-to-show", () => {
-        //Pone a la escucha la comprobación de actualizaciones
+        //UPDATES DE PRUEBA
+        if(isDev) {
+            const devUpdateConfigPath = path.join(__dirname, 'dev-app-update.yml');
+            autoUpdater.updateConfigPath = devUpdateConfigPath;
+            // Forzar la comprobación de actualizaciones incluso en desarrollo
+            autoUpdater.forceDevUpdateConfig = true; 
+            //Pone a la escucha la comprobación de actualizaciones
+        }
         autoUpdater.checkForUpdatesAndNotify();
+        checks();
     });
     //Cuando se llama a .close() la ventana principal se cierra
     appWin.on( "closed", () => appWin = null );
@@ -239,21 +261,23 @@ ipcMain.on( 'getVersion', ( event, args ) => {
 /**
  * * Eventos de Actualizaciones Automáticas
  */
-autoUpdater.on( 'update-available', ( info ) => {
-    appWin.webContents.send( 'update_available' );
-});
-autoUpdater.on( 'update-not-available', () => {
-    appWin.webContents.send( 'update_not_available' );
-});
-autoUpdater.on( 'download-progress', ( progressObj ) => {
-    appWin.webContents.send( 'download_progress', Math.trunc( progressObj.percent ) );
-});
-autoUpdater.on( 'update-downloaded', () => {
-    appWin.webContents.send( 'update_downloaded' );
-});
-autoUpdater.on( 'error', ( error ) => {
-    const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
-    fs.writeFile(`${path}/log.txt`, error, (errorReq) => {
-        appWin.webContents.send( 'error_update' );
+const checks = () => {
+    autoUpdater.on( 'update-available', ( info ) => {
+        appWin.webContents.send( 'update_available', info );
     });
-});
+    autoUpdater.on( 'update-not-available', () => {
+        appWin.webContents.send( 'update_not_available' );
+    });
+    autoUpdater.on( 'download-progress', ( progressObj ) => {
+        appWin.webContents.send( 'download_progress', Math.trunc( progressObj.percent ) );
+    });
+    autoUpdater.on( 'update-downloaded', () => {
+        appWin.webContents.send( 'update_downloaded' );
+    });
+    autoUpdater.on( 'error', ( error ) => {
+        const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
+        fs.writeFile(`${path}/log.txt`, error, (errorReq) => {
+            appWin.webContents.send( 'error_update' );
+        });
+    });
+};

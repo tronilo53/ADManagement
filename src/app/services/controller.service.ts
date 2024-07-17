@@ -25,6 +25,27 @@ export class ControllerService {
   public createToast(position: any, icon: any, title: string): void { Swal.fire({ position, icon, title, showConfirmButton: false, timer: 1500 }) }
 
   /**
+   * *Function: Crea un Mixin(Toast)
+   * @param position Posicion del Mixin
+   * @param icon Icono del Mixin
+   * @param title Titulo del Mixin
+   */
+  public createMixin(position: any, icon: any, title: string): void {
+    const Toast = Swal.mixin({
+      toast: true,
+      position,
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+      didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+      }
+    });
+    Toast.fire({ icon, title });
+  }
+
+  /**
    * *Function: Crea un Loading
    */
   public createLoading(): void {
