@@ -60,8 +60,8 @@ export class HomeComponent implements AfterViewInit {
       html: `Hay una actualización disponible<br>Versión: <strong>${data.version}</strong><br>¿Quieres descargarla ahora?`,
       icon: "info",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: `${this.storageService.getThemeCss('swal')}`,
+      cancelButtonColor: "var(--bs-danger)",
       cancelButtonText: 'Cancelar',
       confirmButtonText: "Si, descargar ahora",
       allowOutsideClick: false

@@ -109,6 +109,13 @@ export class StorageService {
         case 'Tasty Licorice': addClass = 'progress-bar bg-danger'; break;
         case 'Gray Storm': addClass = 'progress-bar bg-secondary'; break;
       }
+    }else if(type === 'swal') {
+      switch(this.getConfig().theme) {
+        case 'Sweet Honey': addClass = '#ffc107'; break;
+        case 'Healthy Sky': addClass = '#0d6efd'; break;
+        case 'Tasty Licorice': addClass = '#dc3545'; break;
+        case 'Gray Storm': addClass = '#6c757d'; break;
+      }
     }
     //Devuelve la/s clases css
     return addClass;
