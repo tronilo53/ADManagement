@@ -1,15 +1,16 @@
-import { AfterViewInit, Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { IpcService } from '../../services/ipc.service';
 import Swal from 'sweetalert2';
 import { StorageService } from '../../services/storage.service';
 import { ControllerService } from '../../services/controller.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
-export class HomeComponent implements AfterViewInit {
+export class HomeComponent implements OnInit, AfterViewInit {
 
   /**
    * *Propiedades de la clase
@@ -21,9 +22,18 @@ export class HomeComponent implements AfterViewInit {
     private ipcService: IpcService,
     private renderer: Renderer2,
     public storageService: StorageService,
-    private controllerService: ControllerService
+    private controllerService: ControllerService,
+    private router: Router
   ) {}
 
+  ngOnInit(): void {
+    //IPC Para comprobar si se ha instalado una actualización
+    this.ipcService.send('checkChangeLog');
+    this.ipcService.once('checkChangeLog', (event, args) => {
+      //Si se ha instalado una actualización...
+      if(args != false) this.router.navigate(['/ChangeLog']);
+    });
+  }
   ngAfterViewInit(): void {
     //Escucha si está comprobando actualizaciones
     this.ipcService.on('checking_for_update', (event, data) => {
@@ -36,7 +46,6 @@ export class HomeComponent implements AfterViewInit {
     //Escucha si no hay ninguna actualización disponible
     this.ipcService.on('update_not_available', (event, data) => {
       if(Swal) this.controllerService.destroyLoading();
-      this.controllerService.createMixin('top-end', 'info', 'No hay Actualizaciones');
     });
     //Escucha el progreso de la descarga
     this.ipcService.on('download_progress', (event, progressObj) => {
@@ -55,13 +64,6 @@ export class HomeComponent implements AfterViewInit {
         text: 'Ha habido un error en la actualización. Por favor, revisa los log',
         allowOutsideClick: false
       });
-    });
-    //Si se ha instalado recientemente una actualización muestra el registro de cambios
-    //IPC Para comprobar si se ha instalado una actualización
-    this.ipcService.send('checkChangeLog');
-    this.ipcService.once('checkChangeLog', (event, args) => {
-      //Si se ha instalado una actualización...
-      if(args != false) this.createAlertChangeLog();
     });
   }
 
@@ -87,41 +89,6 @@ export class HomeComponent implements AfterViewInit {
         //Se envia ipc para descargar la App
         this.ipcService.send('downloadApp');
         this.ipcService.removeAllListeners('downloadApp');
-      }
-    });
-  }
-
-  private createAlertChangeLog(): void {
-    Swal.fire({
-      title: `Versión: <strong>${sessionStorage.getItem('version')}</strong>`,
-      html: `
-      <div class="${this.storageService.getThemeCss('alert')}" role="alert" style="height: 200px; overflow: auto;">
-        <pre>${sessionStorage.getItem('changeLogData')}</pre>
-      </div>
-      `,
-      imageUrl: "assets/Henry-Schein.png",
-      imageWidth: 300,
-      imageHeight: 60,
-      imageAlt: "Custom image",
-      allowOutsideClick: false,
-      width: '100%',
-      showClass: {
-        popup: `
-          animate__animated
-          animate__fadeInUp
-          animate__faster
-        `
-      },
-      hideClass: {
-        popup: `
-          animate__animated
-          animate__fadeOutDown
-          animate__faster
-        `
-      },
-      preConfirm: () => {
-        //IPC para eliminar la bandera de instalacion de actualizacion
-        this.ipcService.send('deleteChangeLog');
       }
     });
   }

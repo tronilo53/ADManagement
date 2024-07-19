@@ -8,9 +8,11 @@ import { DashboardComponent } from './pages/shared/dashboard/dashboard.component
 import { InitComponent } from './pages/init/init.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { ConfigGuard } from './guards/config.guard';
+import { ChangeLogComponent } from './pages/change-log/change-log.component';
 
 const routes: Routes = [
   {path: 'Preload', component: PreloadComponent},
+  {path: 'ChangeLog', component: ChangeLogComponent},
   {path: 'Init', component: InitComponent},
   {
     path: 'Dashboard', 

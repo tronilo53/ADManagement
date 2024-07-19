@@ -17,6 +17,7 @@ import { DashboardComponent } from './pages/shared/dashboard/dashboard.component
 import { ComponentsModule } from './components/components.module';
 import { InitComponent } from './pages/init/init.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { ChangeLogComponent } from './pages/change-log/change-log.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -26,7 +27,8 @@ import { ProfileComponent } from './pages/profile/profile.component';
     CreateUsersComponent,
     DashboardComponent,
     InitComponent,
-    ProfileComponent
+    ProfileComponent,
+    ChangeLogComponent
   ],
   imports: [
     BrowserModule,

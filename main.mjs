@@ -16,7 +16,8 @@ const __dirname = path.resolve();
 const PATH_ASSETS_PROD = path.join(__dirname, 'resources', 'app', 'src', 'assets');
 const PATH_ASSETS_DEV = path.join(__dirname, 'src', 'assets');
 const PATH_DIST_PROD = path.join(__dirname, 'resources', 'app', 'dist');
-const PATH_CHANGELOG = path.join(__dirname, 'CHANGELOG.md');
+const PATH_CHANGELOG_PROD = path.join(__dirname, 'resources', 'app', 'CHANGELOG.md');
+const PATH_CHANGELOG_DEV = path.join(__dirname, 'CHANGELOG.md');
 
 /**
  * * Propiedades de AutoUpdater
@@ -133,11 +134,11 @@ function createHome() {
     //Cuando la ventana está lista para ser mostrada...
     appWin.once( "ready-to-show", () => {
         //UPDATES DE PRUEBA
-        /*if(isDev) {
+        if(isDev) {
             const devUpdateConfigPath = path.join(__dirname, 'dev-app-update.yml');
             autoUpdater.updateConfigPath = devUpdateConfigPath;
             autoUpdater.forceDevUpdateConfig = true; 
-        }*/
+        }
         //Pone a la escucha la comprobación de actualizaciones
         autoUpdater.checkForUpdatesAndNotify();
         //Pone a la escucha los eventos de actualizaciones
@@ -252,7 +253,10 @@ ipcMain.on('deleteChangeLog', (event, args) => {
     catch (error) { event.sender.send('deleteChangeLog', '002'); }
 });
 //Obtiene la info del fichero CHANGELOG.md
-ipcMain.on('getChangeLog', (event, args) => { fs.readFile(PATH_CHANGELOG, 'utf8', (err, data) => { event.sender.send('getChangeLog', data) }) });
+ipcMain.on('getChangeLog', (event, args) => {
+    const path = isDev ? PATH_CHANGELOG_DEV : PATH_CHANGELOG_PROD;
+    fs.readFile(path, 'utf8', (err, data) => { event.sender.send('getChangeLog', data) });
+});
 
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());

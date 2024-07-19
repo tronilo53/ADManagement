@@ -1,0 +1,10 @@
+.logo {
+    width: 20rem;
+}
+.avatar {
+    width: 3rem;
+}
+.alert {
+    height: 400px;
+    overflow: auto;
+}
