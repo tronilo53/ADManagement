@@ -17,7 +17,5 @@ export class PreloadComponent implements OnInit {
   ngOnInit(): void {
     //Escucha por si hay algun error al obtener las Unidades Organizativas
     this.ipcService.on('getOusError', (event, args) => this.controllerService.createMixin('top-end', 'error', 'Ha habido un error al contactar con el dominio.'));
-    //Escucha por si se han obtenido las OU's de forma satisfactoria
-    this.ipcService.on('getOusSuccess', (event, args) => this.controllerService.createMixin('top-end', 'success', 'Se ha contactado con el dominio'));
   }
 }

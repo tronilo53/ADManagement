@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { IpcService } from './ipc.service';
+import { ControllerService } from './controller.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +16,11 @@ export class StorageService {
   private avatars: string[] = ['Batman-256.png', 'Capitan-America-256.png', 'Daredevil-256.png', 'Green-Lantern-256.png', 'Invisible-Woman-256.png', 'Mister-Fantastic-256.png', 'Namor-256.png', 'Silver-Surfer-256.png', 'Superman-256.png', 'the-Thing-256.png'];
   private themes: string[] = ['Sweet Honey', 'Healthy Sky', 'Tasty Licorice', 'Gray Storm'];
 
-  constructor() {
+  constructor(
+    private ipcService: IpcService,
+    private controllerService: ControllerService,
+    private router: Router
+  ) {
     this.configBehavior = new BehaviorSubject<any>(JSON.parse(sessionStorage.getItem('config')));
   }
 
@@ -119,5 +126,41 @@ export class StorageService {
     }
     //Devuelve la/s clases css
     return addClass;
+  }
+
+  /**
+   * *Function: Comprueba si existe configuración y Unidades organizativas guardadas
+   * @returns Devuelve un boolean
+   */
+  public checkConfigAndOus(): Promise<boolean> {
+    return new Promise((resolve) => {
+      this.controllerService.createLoading();
+      //IPC para comprobar si hay configuración guardada
+      this.ipcService.send('getConfig');
+      this.ipcService.once('getConfig', (event, args) => {
+        //Si existe configuracion...
+        if(args != false) {
+          //Se guarda la configuración en el sessionStorage y se modifica el Behavior
+          this.setConfig(args);
+          //Se oculta el loading
+          this.controllerService.destroyLoading();
+          //IPC Para comprobar si hay unidades organizativas guardadas en el store
+          this.ipcService.send('getOus');
+          this.ipcService.once('getOus', (event, data) => {
+            if(data != false) sessionStorage.setItem('ous', JSON.stringify(data));
+            //Permite el acceso
+            resolve(true);
+          });
+        //Si no existe configuracion...
+        }else {
+          //Se oculta el loading
+          this.controllerService.destroyLoading();
+          //Redirige al Init
+          this.router.navigate(['/Init']);
+          //Deniega el acceso
+          resolve(false);
+        }
+      });
+    });
   }
 }

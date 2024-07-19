@@ -214,12 +214,10 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
     else {
       //Se muestra el loading
       this.controllerService.createLoading();
-      //ipc para obtener las Unidades Organizativas
-      this.ipcService.send('getOus');
-      this.ipcService.removeAllListeners('getOus');
-      this.ipcService.on('getOus', (event, data) => {
+      //Si existen Unidades Organizativas en el sessionStorage...
+      if(sessionStorage.getItem('ous')) {
         //Guarda las unidades Organizativas en la variable 'ous'
-        this.ous = [...JSON.parse(data)];
+        this.ous = [...JSON.parse(sessionStorage.getItem('ous'))];
         //Corrige defectos del JSON recibido
         this.modifyTreeNodes(this.ous);
         //Se oculta el loading
@@ -228,7 +226,39 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
         this.modalInstance.show();
         //Se detectan los cambios en la vista.
         this.cd.detectChanges();
-      });
+      //Si no existen Unidades Organizativas en el sessionStorage...
+      }else {
+        //Se oculta el loading
+        this.controllerService.destroyLoading();
+        //Se muestra el loading de reconexion a Ou's
+        this.controllerService.createLoading('Reconectando con el dominio...');
+        //ipc para obtener las Unidades Organizativas
+        this.ipcService.send('getOusReload');
+        this.ipcService.removeAllListeners('getOusReload');
+        this.ipcService.on('getOusReload', (event, args) => {
+          //Si Reconecta con el dominio...
+          if(args !== '002') {
+            //Guarda las Unidades organizativas en el sessionStorage
+            sessionStorage.setItem('ous', JSON.stringify(args));
+            //Guarda las unidades Organizativas en la variable 'ous'
+            this.ous = [...JSON.parse(sessionStorage.getItem('ous'))];
+            //Corrige defectos del JSON recibido
+            this.modifyTreeNodes(this.ous);
+            //Se oculta el loading
+            this.controllerService.destroyLoading();
+            //Se muestra el modal.
+            this.modalInstance.show();
+            //Se detectan los cambios en la vista.
+            this.cd.detectChanges();
+          //Si no reconecta con el dominio...
+          }else {
+            //Se oculta el loading
+            this.controllerService.destroyLoading();
+            //Se muestra una alerta
+            this.controllerService.createAlert('error', 'No se ha podido contactar con el dominio. Revisa que tengas acceso a la red de Henry Schein');
+          }
+        });
+      }
     }
   }
 
@@ -350,7 +380,7 @@ export class CreateUsersComponent implements OnInit, AfterViewInit {
         //Se oculta el loading
         this.controllerService.destroyLoading();
         //Se muestra una alerta
-        this.controllerService.createAlert('error', 'Ha habido un error al crear el usuario en Active Directory. Por favor, inténtalo de nuevo o contacta con Soporte');
+        this.controllerService.createAlert('error', 'No se ha podido contactar con el dominio. Revisa que tengas acceso a la red de Henry Schein');
       }
     });
   }

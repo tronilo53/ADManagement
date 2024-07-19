@@ -1,9 +1,8 @@
-import { Component, ElementRef, OnInit, Renderer2, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { StorageService } from '../../services/storage.service';
 import { IpcService } from '../../services/ipc.service';
 import { ControllerService } from '../../services/controller.service';
-import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-init',
@@ -21,7 +20,6 @@ export class InitComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private renderer: Renderer2,
     private storageService: StorageService,
     private ipcService: IpcService,
     private controllerService: ControllerService
@@ -57,12 +55,12 @@ export class InitComponent implements OnInit {
       avatar: this.avatarSelect ? this.avatarSelect : 'default.png',
       theme: this.themeSelected
     };
-    //IPC para guardar los datos de configuracion en el .xml
+    //IPC para guardar los datos de configuracion
     this.ipcService.send('setConfig', data);
     this.ipcService.removeAllListeners('setConfig');
     this.ipcService.on('setConfig', (event, args) => {
       //Si se guardan los datos correctamente...
-      if(args === '001') {
+      if(args === '001') {  
         //Se guarda la configuración en el sessionStorage y se modifica el BehaviorSubject
         this.storageService.setConfig(data);
         //Se oculta el loading
