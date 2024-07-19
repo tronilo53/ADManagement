@@ -15,7 +15,7 @@
 
 ### Corregido
 - Corrección de errores menores.
-- Corrección al detectar el dominio en el inicio de la Aplicación(La aplicación se quedaba sin avanzar)
+- Corrección al detectar el dominio (La aplicación se quedaba sin avanzar)
 
 ## [1.0.0] - 2024-07-01
 ### Añadido

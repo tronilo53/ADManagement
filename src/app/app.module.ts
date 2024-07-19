@@ -17,7 +17,6 @@ import { DashboardComponent } from './pages/shared/dashboard/dashboard.component
 import { ComponentsModule } from './components/components.module';
 import { InitComponent } from './pages/init/init.component';
 import { ProfileComponent } from './pages/profile/profile.component';
-
 @NgModule({
   declarations: [
     AppComponent,

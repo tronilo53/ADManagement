@@ -18,6 +18,6 @@
 </div>
 <div class="version">
     <p>
-        <span [class]="storageService.getThemeCss('badge')">v{{ version ? version : 'No Info' }}</span>
+        <span [class]="storageService.getThemeCss('badge')">v{{ storageService.getVersion() }}</span>
     </p>
 </div>

@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { IpcService } from '../../services/ipc.service';
 import Swal from 'sweetalert2';
 import { StorageService } from '../../services/storage.service';
@@ -16,19 +16,15 @@ export class HomeComponent implements AfterViewInit {
    */
   @ViewChild('loadingProcess') loadingProcess: ElementRef;
   @ViewChild('process') process: ElementRef;
-  public version: string | null = null;
 
   constructor(
     private ipcService: IpcService,
     private renderer: Renderer2,
     public storageService: StorageService,
-    private controllerService: ControllerService,
-    private cp: ChangeDetectorRef
+    private controllerService: ControllerService
   ) {}
 
   ngAfterViewInit(): void {
-    //Se obtiene la version de la App
-    this.getVersionApp();
     //Escucha si está comprobando actualizaciones
     this.ipcService.on('checking_for_update', (event, data) => {
       this.controllerService.createLoading('Buscando Actualizaciones...');
@@ -60,6 +56,13 @@ export class HomeComponent implements AfterViewInit {
         allowOutsideClick: false
       });
     });
+    //Si se ha instalado recientemente una actualización muestra el registro de cambios
+    //IPC Para comprobar si se ha instalado una actualización
+    this.ipcService.send('checkChangeLog');
+    this.ipcService.once('checkChangeLog', (event, args) => {
+      //Si se ha instalado una actualización...
+      if(args != false) this.createAlertChangeLog();
+    });
   }
 
   /**
@@ -88,15 +91,38 @@ export class HomeComponent implements AfterViewInit {
     });
   }
 
-  public getVersionApp(): void {
-    //ipc para obtener la versión actual de la App
-    this.ipcService.send('getVersion');
-    this.ipcService.removeAllListeners('getVersion');
-    this.ipcService.on('getVersion', (event, args) => {
-      //Guarda la version en la variable 'version'
-      this.version = args.data;
-      //Detecta los cambios en la vista
-      this.cp.detectChanges();
+  private createAlertChangeLog(): void {
+    Swal.fire({
+      title: `Versión: <strong>${sessionStorage.getItem('version')}</strong>`,
+      html: `
+      <div class="${this.storageService.getThemeCss('alert')}" role="alert" style="height: 200px; overflow: auto;">
+        <pre>${sessionStorage.getItem('changeLogData')}</pre>
+      </div>
+      `,
+      imageUrl: "assets/Henry-Schein.png",
+      imageWidth: 300,
+      imageHeight: 60,
+      imageAlt: "Custom image",
+      allowOutsideClick: false,
+      width: '100%',
+      showClass: {
+        popup: `
+          animate__animated
+          animate__fadeInUp
+          animate__faster
+        `
+      },
+      hideClass: {
+        popup: `
+          animate__animated
+          animate__fadeOutDown
+          animate__faster
+        `
+      },
+      preConfirm: () => {
+        //IPC para eliminar la bandera de instalacion de actualizacion
+        this.ipcService.send('deleteChangeLog');
+      }
     });
   }
 }

@@ -16,6 +16,7 @@ const __dirname = path.resolve();
 const PATH_ASSETS_PROD = path.join(__dirname, 'resources', 'app', 'src', 'assets');
 const PATH_ASSETS_DEV = path.join(__dirname, 'src', 'assets');
 const PATH_DIST_PROD = path.join(__dirname, 'resources', 'app', 'dist');
+const PATH_CHANGELOG = path.join(__dirname, 'CHANGELOG.md');
 
 /**
  * * Propiedades de AutoUpdater
@@ -171,9 +172,7 @@ app.on( "window-all-closed", () => {
  * * Comunicación entre procesos
  */
 //Obtiene las Unidades Organizativas de AD guardadas en el store
-ipcMain.on('getOus', (event, args) => {
-    event.sender.send('getOus', store.get('ous', false));
-});
+ipcMain.on('getOus', (event, args) => { event.sender.send('getOus', store.get('ous', false)) });
 //Obtiene las Unidades Organizativas de AD
 ipcMain.on('getOusReload', (event, args) => {
     const pathOu = isDev ? `${PATH_ASSETS_DEV}/scripts/Get-ADOrganizationalUnit.ps1` : `${PATH_ASSETS_PROD}/scripts/Get-ADOrganizationalUnit.ps1`;
@@ -244,9 +243,16 @@ ipcMain.on('setConfigInit', (event, args) => {
     });
 });
 //comprueba si existe configuracion guardada
-ipcMain.on('getConfig', (event, args) => {
-    event.sender.send('getConfig', store.get('config', false));
+ipcMain.on('getConfig', (event, args) => { event.sender.send('getConfig', store.get('config', false)) });
+//Comprueba la bandera de que se ha instalado una nueva actualizacion
+ipcMain.on('checkChangeLog', (event, args) => { event.sender.send('checkChangeLog', store.get('changeLog', false)) });
+//Elimina del store la bandera de la instalacion de la nueva actualizacion
+ipcMain.on('deleteChangeLog', (event, args) => {
+    try { store.delete('changeLog'); event.sender.send('deleteChangeLog', '001'); } 
+    catch (error) { event.sender.send('deleteChangeLog', '002'); }
 });
+//Obtiene la info del fichero CHANGELOG.md
+ipcMain.on('getChangeLog', (event, args) => { fs.readFile(PATH_CHANGELOG, 'utf8', (err, data) => { event.sender.send('getChangeLog', data) }) });
 
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());
@@ -255,9 +261,7 @@ ipcMain.on( 'downloadApp', () => autoUpdater.downloadUpdate() );
 //INSTALAR ACTUALIZACION
 ipcMain.on( 'installApp', () => autoUpdater.quitAndInstall() );
 //OBTENER VERSION DE APP
-ipcMain.on( 'getVersion', ( event, args ) => {
-    event.sender.send( 'getVersion', { data: app.getVersion() } );
-});
+ipcMain.on( 'getVersion', ( event, args ) => { event.sender.send( 'getVersion', app.getVersion() ) });
 
 /**
  * * Eventos de Actualizaciones Automáticas
@@ -276,6 +280,7 @@ const checks = () => {
         appWin.webContents.send( 'download_progress', Math.trunc( progressObj.percent ) );
     });
     autoUpdater.on( 'update-downloaded', () => {
+        store.set('changeLog', true);
         appWin.webContents.send( 'update_downloaded' );
     });
     autoUpdater.on( 'error', ( error ) => {

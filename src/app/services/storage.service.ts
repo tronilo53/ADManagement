@@ -65,6 +65,12 @@ export class StorageService {
   public getThemes(): string[] { return this.themes }
 
   /**
+   * *Function: Obtiene la version de la App
+   * @returns Devuelve la version en tipo String
+   */
+  public getVersion(): string { return sessionStorage.getItem('version') }
+
+  /**
    * *Function: Obtiene la/s clases css que se deben aplicar
    * @param type Tipo de elemento a aplicar la clase
    * @returns Devuelve la/s clases css en tipo String
@@ -142,14 +148,27 @@ export class StorageService {
         if(args != false) {
           //Se guarda la configuración en el sessionStorage y se modifica el Behavior
           this.setConfig(args);
-          //Se oculta el loading
-          this.controllerService.destroyLoading();
           //IPC Para comprobar si hay unidades organizativas guardadas en el store
           this.ipcService.send('getOus');
           this.ipcService.once('getOus', (event, data) => {
+            //Si obtiene las unidades organizativas las guarda en el sessionStorage
             if(data != false) sessionStorage.setItem('ous', JSON.stringify(data));
-            //Permite el acceso
-            resolve(true);
+            //IPC para obtener el registro de cambios
+            this.ipcService.send('getChangeLog');
+            this.ipcService.once('getChangeLog', (event, args) => {
+              //Se guarda el registro de cambios en el sessionStorage
+              sessionStorage.setItem('changeLogData', args);
+              //IPC para obtener la versión actual de la App
+              this.ipcService.send('getVersion');
+              this.ipcService.once('getVersion', (event, args) => {
+                //Se guarda la version en el sessionStorage
+                sessionStorage.setItem('version', args);
+                //Se oculta el loading
+                this.controllerService.destroyLoading();
+                //Permite el acceso
+                resolve(true);
+              });
+            });
           });
         //Si no existe configuracion...
         }else {
