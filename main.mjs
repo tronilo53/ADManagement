@@ -1,13 +1,14 @@
 /**
  * * Importaciones de Módulos
  */
-import { app, BrowserWindow, ipcMain, Menu, Tray } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, Tray, dialog } from "electron";
 import isDev from "electron-is-dev";
 import pkg from "electron-updater";
 import { execFile } from "child_process";
 import Store from "electron-store";
 import path from 'path';
 import fs from 'fs';
+import isElevated from 'is-elevated';
 
 const { autoUpdater } = pkg;
 const store = new Store();
@@ -52,7 +53,7 @@ autoUpdater.autoRunAppAfterInstall = true;
  * * Declaraciones de Variables
  */
 let appWin;
-let appPrelaod;
+let appPreload;
 let tray = null;
 
 /**
@@ -60,7 +61,7 @@ let tray = null;
  */
 function appInit() {
     //Instancia de una nueva ventana
-    appPrelaod = new BrowserWindow(
+    appPreload = new BrowserWindow(
         {
             width: 600, 
             height: 400,
@@ -75,37 +76,49 @@ function appInit() {
             alwaysOnTop: true
         }
     );
-    appPrelaod.setIcon(PATH_ICON);
-    appPrelaod.loadURL(URL_PRELOAD);
+    appPreload.setIcon(PATH_ICON);
+    appPreload.loadURL(URL_PRELOAD);
+    appPreload.webContents.openDevTools({ mode: 'detach' });
     //Cuando la ventana está lista para ser mostrada...
-    appPrelaod.once( "ready-to-show", () => {
-        //Variables con las rutas del script de Powershell
-        const pathOu = path.join(PATH_ASSETS, 'scripts', 'Get-ADOrganizationalUnit.ps1');
-        execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
-            //Si existe un error...
-            if (error || stderr) {
-                //Si existen Ou's en store las borra
-                if(store.get('ous', false)) store.delete('ous');
-                //Manda por el canal 'getOusError' el error
-                appPrelaod.webContents.send('getOusError');
-                setTimeout(() => {
-                    //Cierra la ventana de Preload
-                    appPrelaod.close();
-                    //Crea la ventana principal
-                    createHome();
-                }, 3000);
+    appPreload.once( "ready-to-show", () => {
+        isElevated().then(elevated => {
+            if(elevated) {
+                //Variables con las rutas del script de Powershell
+                const pathOu = path.join(PATH_ASSETS, 'scripts', 'Get-ADOrganizationalUnit.ps1');
+                execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
+                    //Si existe un error...
+                    if (error || stderr) {
+                        //Si existen Ou's en store las borra
+                        if(store.get('ous', false)) store.delete('ous');
+                        //Manda por el canal 'getOusError' el error
+                        appPreload.webContents.send('getOusError');
+                        setTimeout(() => {
+                            //Cierra la ventana de Preload
+                            appPreload.close();
+                            //Crea la ventana principal
+                            createHome();
+                        }, 3000);
+                    }else {
+                        //Establece o reemplaza un nuevo JSON llamado 'ous' guardando las Unidades Organizativas
+                        store.set('ous', JSON.parse(stdout));
+                        //Cierra la ventana de Preload
+                        appPreload.close();
+                        //Crea la ventana principal
+                        createHome();
+                    }
+                });
             }else {
-                //Establece o reemplaza un nuevo JSON llamado 'ous' guardando las Unidades Organizativas
-                store.set('ous', JSON.parse(stdout));
-                //Cierra la ventana de Preload
-                appPrelaod.close();
-                //Crea la ventana principal
-                createHome();
+                dialog.showMessageBox(appPreload, {
+                    type: 'error',
+                    title: 'Permiso Denegado',
+                    message: 'Se necesitan privilegios para usar la App. Disculpen las molestias.',
+                    buttons: ['Cerrar']
+                }).then(() => { app.quit() });
             }
         });
     });
     //Cuando se llama a .close() la ventana Preload se cierra
-    appPrelaod.on( "closed", () => appPrelaod = null );
+    appPreload.on( "closed", () => appPreload = null );
 }
 /**
  * * Función de ventana principal

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { IpcService } from '../../services/ipc.service';
 import { ControllerService } from '../../services/controller.service';
 
@@ -7,15 +7,17 @@ import { ControllerService } from '../../services/controller.service';
   templateUrl: './preload.component.html',
   styleUrl: './preload.component.css'
 })
-export class PreloadComponent implements OnInit {
+export class PreloadComponent implements OnInit, AfterViewInit {
 
   constructor(
     private ipcService: IpcService,
     private controllerService: ControllerService
   ) { }
 
-  ngOnInit(): void {
+  ngAfterViewInit(): void {
     //Escucha por si hay algun error al obtener las Unidades Organizativas
     this.ipcService.on('getOusError', (event, args) => this.controllerService.createMixin('top-end', 'error', 'Ha habido un error al contactar con el dominio.'));
+  }
+  ngOnInit(): void {
   }
 }
