@@ -13,11 +13,34 @@ const { autoUpdater } = pkg;
 const store = new Store();
 const __dirname = path.resolve();
 
-const PATH_ASSETS_PROD = path.join(__dirname, 'resources', 'app', 'src', 'assets');
-const PATH_ASSETS_DEV = path.join(__dirname, 'src', 'assets');
-const PATH_DIST_PROD = path.join(__dirname, 'resources', 'app', 'dist');
-const PATH_CHANGELOG_PROD = path.join(__dirname, 'resources', 'app', 'CHANGELOG.md');
-const PATH_CHANGELOG_DEV = path.join(__dirname, 'CHANGELOG.md');
+/**
+ * *Constantes
+ */
+const PATH_ASSETS = isDev ? path.join(__dirname, 'src', 'assets') : path.join(__dirname, 'resources', 'app', 'src', 'assets');
+const PATH_ICON = path.join(PATH_ASSETS, 'favicon.png');
+const PATH_CHANGELOG = isDev ? path.join(__dirname, 'CHANGELOG.md') : path.join(__dirname, 'resources', 'app', 'CHANGELOG.md');
+const PATH_DIST = path.join(__dirname, 'resources', 'app', 'dist', 'browser');
+const URL_PRELOAD = isDev ? 'http://localhost:4200/#/Preload' : path.join(__dirname, PATH_DIST, 'index.html#', 'Preload');
+const URL_HOME = isDev ? 'http://localhost:4200/' : path.join(__dirname, PATH_DIST, 'index.html');
+const MENU_TEMPLATE = isDev ? [
+    {
+        label: 'Archivo',
+        submenu: [
+            { role: 'toggledevtools' },
+            { label: 'Comprobar Actualizaciones', click: () => autoUpdater.checkForUpdatesAndNotify() }
+        ]
+    }
+] : [
+    {
+        label: 'Archivo',
+        submenu: [
+            { label: 'Comprobar Actualizaciones', click: () => autoUpdater.checkForUpdatesAndNotify() }
+        ]
+    }
+];
+const MENU = Menu.buildFromTemplate( MENU_TEMPLATE );
+const MENU_TRY_TEMPLATE = [ {label: 'Salir', click: () => app.quit()} ];
+const MENU_TRY = Menu.buildFromTemplate( MENU_TRY_TEMPLATE );
 
 /**
  * * Propiedades de AutoUpdater
@@ -33,31 +56,9 @@ let appPrelaod;
 let tray = null;
 
 /**
- * * Preparación del Menú
+ * * Función de Inicio de app
  */
-let menuTemplateDev = [
-    {
-        label: 'Archivo',
-        submenu: [
-            { role: 'toggledevtools' },
-            { label: 'Comprobar Actualizaciones', click: () => autoUpdater.checkForUpdatesAndNotify() }
-        ]
-    }
-];
-let menuTemplateProd = [
-    {
-        label: 'Archivo',
-        submenu: [
-            { label: 'Comprobar Actualizaciones', click: () => autoUpdater.checkForUpdatesAndNotify() }
-        ]
-    }
-];
-const menu = Menu.buildFromTemplate( isDev ? menuTemplateDev : menuTemplateProd );
-
-/**
- * * Función de ventana Preload
- */
-function createPreload() {
+function appInit() {
     //Instancia de una nueva ventana
     appPrelaod = new BrowserWindow(
         {
@@ -74,15 +75,12 @@ function createPreload() {
             alwaysOnTop: true
         }
     );
-    //Si estamos en modo de desarrollo...
-    appPrelaod.setIcon(isDev ? `${PATH_ASSETS_DEV}/favicon.png` : `${PATH_ASSETS_PROD}/favicon.png`);
-    appPrelaod.loadURL(isDev ? 'http://localhost:4200/#/Preload' : `file://${PATH_DIST_PROD}/browser/index.html#/Preload`);
-    
+    appPrelaod.setIcon(PATH_ICON);
+    appPrelaod.loadURL(URL_PRELOAD);
     //Cuando la ventana está lista para ser mostrada...
     appPrelaod.once( "ready-to-show", () => {
         //Variables con las rutas del script de Powershell
-        //TODO: ACORTAR LAS RUTAS
-        const pathOu = isDev ? `${PATH_ASSETS_DEV}/scripts/Get-ADOrganizationalUnit.ps1` : `${PATH_ASSETS_PROD}/scripts/Get-ADOrganizationalUnit.ps1`;
+        const pathOu = path.join(PATH_ASSETS, 'scripts', 'Get-ADOrganizationalUnit.ps1');
         execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
             //Si existe un error...
             if (error || stderr) {
@@ -126,19 +124,18 @@ function createHome() {
             }
         });
     //Si se está en modo de desarrollo...
-    appWin.setIcon(isDev ? `${PATH_ASSETS_DEV}/favicon.png` : `${PATH_ASSETS_PROD}/favicon.png`);
-    appWin.setMenu(menu);
-    appWin.loadURL(isDev ? 'http://localhost:4200/' : `${PATH_DIST_PROD}/browser/index.html`);
+    appWin.setIcon(PATH_ICON);
+    appWin.setMenu(MENU);
+    appWin.loadURL(URL_HOME);
     if(isDev) appWin.webContents.openDevTools({ mode: 'detach' });
     
     //Cuando la ventana está lista para ser mostrada...
     appWin.once( "ready-to-show", () => {
         //UPDATES DE PRUEBA
-        if(isDev) {
-            const devUpdateConfigPath = path.join(__dirname, 'dev-app-update.yml');
-            autoUpdater.updateConfigPath = devUpdateConfigPath;
+        /*if(isDev) {
+            autoUpdater.updateConfigPath = path.join(__dirname, 'dev-app-update.yml');
             autoUpdater.forceDevUpdateConfig = true; 
-        }
+        }*/
         //Pone a la escucha la comprobación de actualizaciones
         autoUpdater.checkForUpdatesAndNotify();
         //Pone a la escucha los eventos de actualizaciones
@@ -153,20 +150,13 @@ function createHome() {
  */
 app.whenReady().then( () => {
     //Se Lanza primero la ventana de Preload y continua..
-    createPreload();
+    appInit();
     //Se crea una instancia de 'Tray' (Icono en la barra de tareas)
-    tray = new Tray(`${isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD}/favicon.png`);
+    tray = new Tray(PATH_ICON);
     //Se crea un nombre para la bandeja
     tray.setToolTip('ADManagement');
     //Se crea un menu para la bandeja
-    tray.setContextMenu(Menu.buildFromTemplate([ {label: 'Salir', click: () => app.quit()} ]));
-});
-
-/**
- * * Acciones para cerrar la App en MacOs
- */
-app.on( "window-all-closed", () => {
-    if( process.platform !== 'darwin' ) app.quit();
+    tray.setContextMenu(MENU_TRY);
 });
 
 /**
@@ -176,7 +166,7 @@ app.on( "window-all-closed", () => {
 ipcMain.on('getOus', (event, args) => { event.sender.send('getOus', store.get('ous', false)) });
 //Obtiene las Unidades Organizativas de AD
 ipcMain.on('getOusReload', (event, args) => {
-    const pathOu = isDev ? `${PATH_ASSETS_DEV}/scripts/Get-ADOrganizationalUnit.ps1` : `${PATH_ASSETS_PROD}/scripts/Get-ADOrganizationalUnit.ps1`;
+    const pathOu = path.join(PATH_ASSETS, 'scripts', 'Get-ADOrganizationalUnit.ps1');
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
         //Si existe un error...
         if (error || stderr) event.sender.send('getOusReload', '002');
@@ -185,7 +175,7 @@ ipcMain.on('getOusReload', (event, args) => {
 });
 //Obtiene un usuario de AD
 ipcMain.on('Get-ADUser', (event, data) => {
-    const path = isDev ? `${PATH_ASSETS_DEV}/scripts/Get-ADUser.ps1` : `${PATH_ASSETS_PROD}/scripts/Get-ADUser.ps1`;
+    const path = path.join(PATH_ASSETS, 'scripts', 'Get-ADUser.ps1');
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-email', data],(error, stdout, stderr) => {
         if(error) {
             event.sender.send('Get-ADUser', { response: 'Error', data: error.message });
@@ -196,7 +186,7 @@ ipcMain.on('Get-ADUser', (event, data) => {
 });
 //Obtiene los grupos de un usuario de AD
 ipcMain.on('Get-ADGroup', (event, data) => {
-    const path = isDev ? `${PATH_ASSETS_DEV}/scripts/Get-ADGroup.ps1` : `${PATH_ASSETS_PROD}/scripts/Get-ADGroup.ps1`;
+    const path = path.join(PATH_ASSETS, 'scripts', 'Get-ADGroup.ps1');
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-distinguishedName', data],(error, stdout, stderr) => {
         if(error) {
             event.sender.send('Get-ADGroup', { response: 'Error', data: error.message });
@@ -207,7 +197,7 @@ ipcMain.on('Get-ADGroup', (event, data) => {
 });
 //Crea un Nuevo Usuario en AD
 ipcMain.on('New-ADUser', (event, data) => {
-    const path = isDev ? `${PATH_ASSETS_DEV}/scripts/New-ADUser.ps1` : `${PATH_ASSETS_PROD}/scripts/New-ADUser.ps1`;
+    const path = path.join(PATH_ASSETS, 'scripts', 'New-ADUser.ps1');
     const jsonData = JSON.stringify(data);
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-MyObject', jsonData],(error, stdout, stderr) => {
         if(error || stderr) event.sender.send('New-ADUser', { response: 'Error' });
@@ -219,30 +209,6 @@ ipcMain.on('setConfig', (event, args) => {
     try { store.set('config', args); event.sender.send('setConfig', '001'); }
     catch(error) { event.sender.send('setConfig', '002') }
 });
-//Guarda los datos de configuración de la App
-ipcMain.on('setConfigInit', (event, args) => {
-    const xml = `
-    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <config>
-        <avatar rel="${args.avatar}"/>
-        <theme rel="${args.theme}"/>
-    </config>
-    `;
-    fs.mkdir('C:/ProgramData/ADManagement', { recursive: true }, (err) => {
-        if(err) {
-            event.sender.send('setConfigInit', '002');
-            console.log(err);
-        }else {
-            fs.writeFile(PATH_CONFIG, xml, (err) => {
-                if(err) {
-                    event.sender.send('setConfigInit', '002');
-                    console.log(err);
-                }
-                else event.sender.send('setConfigInit', '001');
-            });
-        }
-    });
-});
 //comprueba si existe configuracion guardada
 ipcMain.on('getConfig', (event, args) => { event.sender.send('getConfig', store.get('config', false)) });
 //Comprueba la bandera de que se ha instalado una nueva actualizacion
@@ -253,10 +219,7 @@ ipcMain.on('deleteChangeLog', (event, args) => {
     catch (error) { event.sender.send('deleteChangeLog', '002'); }
 });
 //Obtiene la info del fichero CHANGELOG.md
-ipcMain.on('getChangeLog', (event, args) => {
-    const path = isDev ? PATH_CHANGELOG_DEV : PATH_CHANGELOG_PROD;
-    fs.readFile(path, 'utf8', (err, data) => { event.sender.send('getChangeLog', data) });
-});
+ipcMain.on('getChangeLog', (event, args) => { fs.readFile(PATH_CHANGELOG, 'utf8', (err, data) => { event.sender.send('getChangeLog', data) }) });
 
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());
@@ -288,8 +251,7 @@ const checks = () => {
         appWin.webContents.send( 'update_downloaded' );
     });
     autoUpdater.on( 'error', ( error ) => {
-        const path = isDev ? PATH_ASSETS_DEV : PATH_ASSETS_PROD;
-        fs.writeFile(`${path}/log.txt`, error, (errorReq) => {
+        fs.writeFile(path.join(PATH_ASSETS, 'log.txt'), error, (errorReq) => {
             appWin.webContents.send( 'error_update' );
         });
     });
