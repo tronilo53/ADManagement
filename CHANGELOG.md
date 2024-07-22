@@ -6,6 +6,7 @@
 
 ### Corregido
 - Corrección de errores menores.
+- Correción de permisos de administrador para usar la App.
 - Corrección de configuración(La configuración no era persistente)
 
 ## [1.1.1] - 2024-07-18

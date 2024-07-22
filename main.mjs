@@ -21,8 +21,8 @@ const PATH_ASSETS = isDev ? path.join(__dirname, 'src', 'assets') : path.join(__
 const PATH_ICON = path.join(PATH_ASSETS, 'favicon.png');
 const PATH_CHANGELOG = isDev ? path.join(__dirname, 'CHANGELOG.md') : path.join(__dirname, 'resources', 'app', 'CHANGELOG.md');
 const PATH_DIST = path.join(__dirname, 'resources', 'app', 'dist', 'browser');
-const URL_PRELOAD = isDev ? 'http://localhost:4200/#/Preload' : path.join(__dirname, PATH_DIST, 'index.html#', 'Preload');
-const URL_HOME = isDev ? 'http://localhost:4200/' : path.join(__dirname, PATH_DIST, 'index.html');
+const URL_PRELOAD = isDev ? 'http://localhost:4200/#/Preload' : `file://${PATH_DIST}/index.html#/Preload`;
+const URL_HOME = isDev ? 'http://localhost:4200/' : `file://${PATH_DIST}/index.html`;
 const MENU_TEMPLATE = isDev ? [
     {
         label: 'Archivo',
