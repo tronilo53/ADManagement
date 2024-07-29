@@ -41,6 +41,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     });
     //Escucha si hay una actualización disponible
     this.ipcService.on('update_available', (event, data) => {
+      if(Swal) this.controllerService.destroyLoading();
       this.update_available(data);
     });
     //Escucha si no hay ninguna actualización disponible

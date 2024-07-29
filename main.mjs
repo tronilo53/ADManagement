@@ -17,12 +17,10 @@ const __dirname = path.resolve();
 /**
  * *Constantes
  */
-const PATH_ASSETS = isDev ? path.join(__dirname, 'src', 'assets') : path.join(__dirname, 'resources', 'app', 'src', 'assets');
-const PATH_ICON = path.join(PATH_ASSETS, 'favicon.png');
-const PATH_CHANGELOG = isDev ? path.join(__dirname, 'CHANGELOG.md') : path.join(__dirname, 'resources', 'app', 'CHANGELOG.md');
-const PATH_DIST = path.join(__dirname, 'resources', 'app', 'dist', 'browser');
-const URL_PRELOAD = isDev ? 'http://localhost:4200/#/Preload' : `file://${PATH_DIST}/index.html#/Preload`;
-const URL_HOME = isDev ? 'http://localhost:4200/' : `file://${PATH_DIST}/index.html`;
+const ASSETS = isDev ? path.join(__dirname, 'src', 'assets') : path.join(process.resourcesPath, 'app.asar', 'src', 'assets');
+const CHANGELOG = isDev ? path.join(__dirname, 'CHANGELOG.md') : path.join(process.resourcesPath, 'app.asar', 'CHANGELOG.md');
+const URL_PRELOAD = isDev ? 'http://localhost:4200/#/Preload' : `file://${path.join(process.resourcesPath, 'app.asar', 'dist', 'admanagement', 'browser', 'index.html#', 'Preload')}`;
+const URL_HOME = isDev ? 'http://localhost:4200/' : `file://${path.join(process.resourcesPath, 'app.asar', 'dist', 'admanagement', 'browser', 'index.html')}`;
 const MENU_TEMPLATE = isDev ? [
     {
         label: 'Archivo',
@@ -73,18 +71,17 @@ function appInit() {
             },
             frame: false,
             transparent: false,
-            alwaysOnTop: true
+            alwaysOnTop: true,
+            icon: `${ASSETS}/favicon.png`
         }
     );
-    appPreload.setIcon(PATH_ICON);
     appPreload.loadURL(URL_PRELOAD);
-    appPreload.webContents.openDevTools({ mode: 'detach' });
     //Cuando la ventana está lista para ser mostrada...
     appPreload.once( "ready-to-show", () => {
         isElevated().then(elevated => {
             if(elevated) {
                 //Variables con las rutas del script de Powershell
-                const pathOu = path.join(PATH_ASSETS, 'scripts', 'Get-ADOrganizationalUnit.ps1');
+                const pathOu = path.join(ASSETS, 'scripts', 'Get-ADOrganizationalUnit.ps1');
                 execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
                     //Si existe un error...
                     if (error || stderr) {
@@ -134,21 +131,19 @@ function createHome() {
             webPreferences: { 
                 contextIsolation: false, 
                 nodeIntegration: true 
-            }
+            },
+            icon: `${ASSETS}/favicon.png`
         });
-    //Si se está en modo de desarrollo...
-    appWin.setIcon(PATH_ICON);
     appWin.setMenu(MENU);
     appWin.loadURL(URL_HOME);
     if(isDev) appWin.webContents.openDevTools({ mode: 'detach' });
-    
     //Cuando la ventana está lista para ser mostrada...
     appWin.once( "ready-to-show", () => {
         //UPDATES DE PRUEBA
-        /*if(isDev) {
+        if(isDev) {
             autoUpdater.updateConfigPath = path.join(__dirname, 'dev-app-update.yml');
             autoUpdater.forceDevUpdateConfig = true; 
-        }*/
+        }
         //Pone a la escucha la comprobación de actualizaciones
         autoUpdater.checkForUpdatesAndNotify();
         //Pone a la escucha los eventos de actualizaciones
@@ -162,14 +157,14 @@ function createHome() {
  * * Preparar la App
  */
 app.whenReady().then( () => {
-    //Se Lanza primero la ventana de Preload y continua..
-    appInit();
     //Se crea una instancia de 'Tray' (Icono en la barra de tareas)
     tray = new Tray(PATH_ICON);
     //Se crea un nombre para la bandeja
     tray.setToolTip('ADManagement');
     //Se crea un menu para la bandeja
     tray.setContextMenu(MENU_TRY);
+    //Se Lanza la App
+    appInit();
 });
 
 /**
@@ -179,7 +174,7 @@ app.whenReady().then( () => {
 ipcMain.on('getOus', (event, args) => { event.sender.send('getOus', store.get('ous', false)) });
 //Obtiene las Unidades Organizativas de AD
 ipcMain.on('getOusReload', (event, args) => {
-    const pathOu = path.join(PATH_ASSETS, 'scripts', 'Get-ADOrganizationalUnit.ps1');
+    const pathOu = path.join(ASSETS, 'scripts', 'Get-ADOrganizationalUnit.ps1');
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
         //Si existe un error...
         if (error || stderr) event.sender.send('getOusReload', '002');
@@ -188,7 +183,7 @@ ipcMain.on('getOusReload', (event, args) => {
 });
 //Obtiene un usuario de AD
 ipcMain.on('Get-ADUser', (event, data) => {
-    const path = path.join(PATH_ASSETS, 'scripts', 'Get-ADUser.ps1');
+    const path = path.join(ASSETS, 'scripts', 'Get-ADUser.ps1');
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-email', data],(error, stdout, stderr) => {
         if(error) {
             event.sender.send('Get-ADUser', { response: 'Error', data: error.message });
@@ -199,7 +194,7 @@ ipcMain.on('Get-ADUser', (event, data) => {
 });
 //Obtiene los grupos de un usuario de AD
 ipcMain.on('Get-ADGroup', (event, data) => {
-    const path = path.join(PATH_ASSETS, 'scripts', 'Get-ADGroup.ps1');
+    const path = path.join(ASSETS, 'scripts', 'Get-ADGroup.ps1');
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-distinguishedName', data],(error, stdout, stderr) => {
         if(error) {
             event.sender.send('Get-ADGroup', { response: 'Error', data: error.message });
@@ -210,7 +205,7 @@ ipcMain.on('Get-ADGroup', (event, data) => {
 });
 //Crea un Nuevo Usuario en AD
 ipcMain.on('New-ADUser', (event, data) => {
-    const path = path.join(PATH_ASSETS, 'scripts', 'New-ADUser.ps1');
+    const path = path.join(ASSETS, 'scripts', 'New-ADUser.ps1');
     const jsonData = JSON.stringify(data);
     execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-MyObject', jsonData],(error, stdout, stderr) => {
         if(error || stderr) event.sender.send('New-ADUser', { response: 'Error' });
@@ -232,7 +227,7 @@ ipcMain.on('deleteChangeLog', (event, args) => {
     catch (error) { event.sender.send('deleteChangeLog', '002'); }
 });
 //Obtiene la info del fichero CHANGELOG.md
-ipcMain.on('getChangeLog', (event, args) => { fs.readFile(PATH_CHANGELOG, 'utf8', (err, data) => { event.sender.send('getChangeLog', data) }) });
+ipcMain.on('getChangeLog', (event, args) => { fs.readFile(CHANGELOG, 'utf8', (err, data) => { event.sender.send('getChangeLog', data) }) });
 
 //CERRAR APLICACIÓN
 ipcMain.on( 'closeApp', ( event, args ) => app.quit());

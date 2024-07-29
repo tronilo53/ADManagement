@@ -1,45 +1,6 @@
 {
-  "build": {
-    "copyright": "Luis Tronilo dev ITSupport.",
-    "directories": {
-      "output": "release",
-      "buildResources": "dist"
-    },
-    "files": [
-      "**/*",
-      "dist/**/*"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "build/icon.ico",
-      "publish": {
-        "provider": "github",
-        "owner": "tronilo53",
-        "repo": "ADManagement",
-        "private": true,
-        "releaseType": "release"
-      }
-    },
-    "asar": false,
-    "nsis": {
-      "oneClick": false,
-      "perMachine": true,
-      "allowElevation": true,
-      "allowToChangeInstallationDirectory": true,
-      "removeDefaultUninstallWelcomePage": false,
-      "installerIcon": "build/installerIcon.ico",
-      "uninstallerIcon": "build/uninstallerIcon.ico",
-      "installerHeaderIcon": "build/installerHeaderIcon.ico",
-      "createDesktopShortcut": true,
-      "createStartMenuShortcut": true,
-      "menuCategory": false,
-      "shortcutName": "ADManagement",
-      "runAfterFinish": false,
-      "include": "build/customInstaller.nsh"
-    }
-  },
   "name": "ADManagement",
-  "version": "1.2.1",
+  "version": "1.0.0",
   "main": "main.mjs",
   "type": "module",
   "license": "MIT",
@@ -95,5 +56,47 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "typescript": "~5.4.2"
+  },
+  "build": {
+    "copyright": "Luis Tronilo dev ITSupport.",
+    "productName": "ADManagement",
+    "files": [
+      "dist/**/*",
+      "build/**/*",
+      "main.mjs",
+      "package.json"
+    ],
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico",
+      "publish": {
+        "provider": "github",
+        "owner": "tronilo53",
+        "repo": "ADManagement",
+        "private": true,
+        "releaseType": "release"
+      }
+    },
+    "asar": true,
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "removeDefaultUninstallWelcomePage": false,
+      "installerIcon": "build/installerIcon.ico",
+      "uninstallerIcon": "build/uninstallerIcon.ico",
+      "installerHeaderIcon": "build/installerHeaderIcon.ico",
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "menuCategory": false,
+      "shortcutName": "ADManagement",
+      "runAfterFinish": false,
+      "include": "build/customInstaller.nsh"
+    }
   }
 }
