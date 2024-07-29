@@ -9,8 +9,8 @@
   "scripts": {
     "ng": "ng",
     "start": "electron .",
-    "build": "ng build && electron-builder",
-    "build:p": "ng build && electron-builder --publish always"
+    "build": "ng build --configuration production && electron-builder",
+    "build:p": "ng build --configuration production && electron-builder --publish always"
   },
   "private": true,
   "dependencies": {
@@ -70,6 +70,13 @@
       "output": "release",
       "buildResources": "build"
     },
+    "extraResources": [
+      {
+        "from": "src/assets/scripts/",
+        "to": "scripts",
+        "filter": ["**/*"]
+      }
+    ],
     "win": {
       "target": "nsis",
       "icon": "build/icon.ico",

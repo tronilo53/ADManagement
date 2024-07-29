@@ -62,7 +62,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.ipcService.on('error_update', (event, data) => {
       Swal.fire({
         icon: 'error',
-        text: 'Ha habido un error en la actualización. Por favor, revisa los log',
+        text: `Error Updates: ${JSON.stringify(data)}`,
         allowOutsideClick: false
       });
     });

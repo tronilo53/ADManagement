@@ -18,9 +18,10 @@ const __dirname = path.resolve();
  * *Constantes
  */
 const ASSETS = isDev ? path.join(__dirname, 'src', 'assets') : path.join(process.resourcesPath, 'app.asar', 'src', 'assets');
+const SCRIPTS = isDev ? path.join(__dirname, 'src', 'assets', 'scripts') : path.join(process.resourcesPath, 'scripts');
 const CHANGELOG = isDev ? path.join(__dirname, 'CHANGELOG.md') : path.join(process.resourcesPath, 'app.asar', 'CHANGELOG.md');
-const URL_PRELOAD = isDev ? 'http://localhost:4200/#/Preload' : `file://${path.join(process.resourcesPath, 'app.asar', 'dist', 'admanagement', 'browser', 'index.html#', 'Preload')}`;
-const URL_HOME = isDev ? 'http://localhost:4200/' : `file://${path.join(process.resourcesPath, 'app.asar', 'dist', 'admanagement', 'browser', 'index.html')}`;
+const URL_PRELOAD = isDev ? 'http://localhost:4200#/Preload' : `file://${path.join(process.resourcesPath, 'app.asar', 'dist', 'browser', 'index.html')}#/Preload`;
+const URL_HOME = isDev ? 'http://localhost:4200/' : `file://${path.join(process.resourcesPath, 'app.asar', 'dist', 'browser', 'index.html')}`;
 const MENU_TEMPLATE = isDev ? [
     {
         label: 'Archivo',
@@ -78,11 +79,12 @@ function appInit() {
     appPreload.loadURL(URL_PRELOAD);
     //Cuando la ventana está lista para ser mostrada...
     appPreload.once( "ready-to-show", () => {
+        //Verifica si se ejecuta como ADM
         isElevated().then(elevated => {
+            //Si se ejecuta como ADM...
             if(elevated) {
-                //Variables con las rutas del script de Powershell
-                const pathOu = path.join(ASSETS, 'scripts', 'Get-ADOrganizationalUnit.ps1');
-                execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
+                //Se ejecuta el script 'Get-ADOrganizationalUnit.ps1'
+                execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(SCRIPTS, 'Get-ADOrganizationalUnit.ps1')],(error, stdout, stderr) => {
                     //Si existe un error...
                     if (error || stderr) {
                         //Si existen Ou's en store las borra
@@ -105,6 +107,7 @@ function appInit() {
                     }
                 });
             }else {
+                //Muestra una alerta nativa
                 dialog.showMessageBox(appPreload, {
                     type: 'error',
                     title: 'Permiso Denegado',
@@ -140,10 +143,10 @@ function createHome() {
     //Cuando la ventana está lista para ser mostrada...
     appWin.once( "ready-to-show", () => {
         //UPDATES DE PRUEBA
-        if(isDev) {
+        /*if(isDev) {
             autoUpdater.updateConfigPath = path.join(__dirname, 'dev-app-update.yml');
             autoUpdater.forceDevUpdateConfig = true; 
-        }
+        }*/
         //Pone a la escucha la comprobación de actualizaciones
         autoUpdater.checkForUpdatesAndNotify();
         //Pone a la escucha los eventos de actualizaciones
@@ -157,14 +160,14 @@ function createHome() {
  * * Preparar la App
  */
 app.whenReady().then( () => {
+    //Se Lanza la App
+    appInit();
     //Se crea una instancia de 'Tray' (Icono en la barra de tareas)
-    tray = new Tray(PATH_ICON);
+    tray = new Tray(`${ASSETS}/favicon.png`);
     //Se crea un nombre para la bandeja
     tray.setToolTip('ADManagement');
     //Se crea un menu para la bandeja
     tray.setContextMenu(MENU_TRY);
-    //Se Lanza la App
-    appInit();
 });
 
 /**
@@ -174,8 +177,8 @@ app.whenReady().then( () => {
 ipcMain.on('getOus', (event, args) => { event.sender.send('getOus', store.get('ous', false)) });
 //Obtiene las Unidades Organizativas de AD
 ipcMain.on('getOusReload', (event, args) => {
-    const pathOu = path.join(ASSETS, 'scripts', 'Get-ADOrganizationalUnit.ps1');
-    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', pathOu],(error, stdout, stderr) => {
+    //Ejecuta el script 'Get-ADOrganizationalUnit.ps1'
+    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(SCRIPTS, 'Get-ADOrganizationalUnit.ps1')],(error, stdout, stderr) => {
         //Si existe un error...
         if (error || stderr) event.sender.send('getOusReload', '002');
         else event.sender.send('getOusReload', stdout);
@@ -183,8 +186,8 @@ ipcMain.on('getOusReload', (event, args) => {
 });
 //Obtiene un usuario de AD
 ipcMain.on('Get-ADUser', (event, data) => {
-    const path = path.join(ASSETS, 'scripts', 'Get-ADUser.ps1');
-    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-email', data],(error, stdout, stderr) => {
+    //Ejecuta el script 'Get-ADUser.ps1'
+    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(SCRIPTS, 'Get-ADUser.ps1'), '-email', data],(error, stdout, stderr) => {
         if(error) {
             event.sender.send('Get-ADUser', { response: 'Error', data: error.message });
             return;
@@ -194,8 +197,8 @@ ipcMain.on('Get-ADUser', (event, data) => {
 });
 //Obtiene los grupos de un usuario de AD
 ipcMain.on('Get-ADGroup', (event, data) => {
-    const path = path.join(ASSETS, 'scripts', 'Get-ADGroup.ps1');
-    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-distinguishedName', data],(error, stdout, stderr) => {
+    //Ejecuta el script 'Get-ADGroup.ps1'
+    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(SCRIPTS, 'Get-ADGroup.ps1'), '-distinguishedName', data],(error, stdout, stderr) => {
         if(error) {
             event.sender.send('Get-ADGroup', { response: 'Error', data: error.message });
             return;
@@ -205,9 +208,10 @@ ipcMain.on('Get-ADGroup', (event, data) => {
 });
 //Crea un Nuevo Usuario en AD
 ipcMain.on('New-ADUser', (event, data) => {
-    const path = path.join(ASSETS, 'scripts', 'New-ADUser.ps1');
+    //Se pasa a string la data
     const jsonData = JSON.stringify(data);
-    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path, '-MyObject', jsonData],(error, stdout, stderr) => {
+    //Se ejecuta el script 'New-ADUser.ps1'
+    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(SCRIPTS, 'New-ADUser.ps1'), '-MyObject', jsonData],(error, stdout, stderr) => {
         if(error || stderr) event.sender.send('New-ADUser', { response: 'Error' });
         else event.sender.send('New-ADUser', { response: 'Success', data: stdout });
     });
@@ -259,8 +263,7 @@ const checks = () => {
         appWin.webContents.send( 'update_downloaded' );
     });
     autoUpdater.on( 'error', ( error ) => {
-        fs.writeFile(path.join(PATH_ASSETS, 'log.txt'), error, (errorReq) => {
-            appWin.webContents.send( 'error_update' );
-        });
+        store.set('logUpdate', error);
+        appWin.webContents.send( 'error_update', store.get('logUpdate') );
     });
 };
