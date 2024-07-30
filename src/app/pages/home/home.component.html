@@ -9,9 +9,116 @@
 </div>
 <div class="home animate__animated animate__fadeIn">
     <div class="container">
-        <div class="row mt-5">
+        <div class="row mt-3">
             <div class="col">
-                <app-maintenance></app-maintenance>
+                <h2>Manuales</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="accordion accordion-flush" id="accordionFlushExample">
+                    <!-- ?Gestiones Ordenadores -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                                <span class="material-symbols-outlined m-1">computer</span>
+                                Gestiones Ordenadores
+                            </button>
+                        </h2>
+                        <div id="flush-collapseOne" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li><a class="link" (click)="openManual('Cambio_De_Equipos.pdf')">Cambio De Equipos</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ?Soluciones Sccm y Active Directory -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                                <span class="material-symbols-outlined m-1">rule_settings</span>
+                                Soluciones Sccm y Active Directory
+                            </button>
+                        </h2>
+                        <div id="flush-collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li><a class="link" (click)="openManual('Sincronizar_Equipo_Con_El_Dominio(Sin_Splashtop).pdf')">Sincronizar equipo con el dominio(Sin Splashtop)</a></li>
+                                    <li><a class="link" (click)="openManual('Solucion_Problema_Pending_Scan.pdf')">Solución Problema Pending Scan</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ?Gestiones Dispositivos Moviles -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+                                <span class="material-symbols-outlined m-1">phonelink_setup</span>
+                                Gestiones Dispositivos Moviles
+                            </button>
+                        </h2>
+                        <div id="flush-collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li><a class="link" (click)="openManual('Configurar_Correo_En_Iphone.pdf')">Configurar correo en iphone</a></li>
+                                    <li><a class="link" (click)="openManual('Configurar_Mobilepass_En_El_Movil.pdf')">Configurar Mobilepass en el movil</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ?Soluciones Errores Comunes -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFour" aria-expanded="false" aria-controls="flush-collapseFour">
+                                <span class="material-symbols-outlined m-1">report</span>
+                                Soluciones Errores Comunes
+                            </button>
+                        </h2>
+                        <div id="flush-collapseFour" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li><a class="link" (click)="openManual('Error_80090034.pdf')">Error 80090034</a></li>
+                                    <li><a class="link" (click)="openManual('Error_80090016.pdf')">Error 80090016</a></li>
+                                    <li><a class="link" (click)="openManual('Error_CAA50021.pdf')">Error CAA50021</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ?Infraestructura y Servidores -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFive" aria-expanded="false" aria-controls="flush-collapseFive">
+                                <span class="material-symbols-outlined m-1">dns</span>
+                                Infraestructura y Servidores
+                            </button>
+                        </h2>
+                        <div id="flush-collapseFive" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li><a class="link" (click)="openManual('Cambio_De_Cintas.pdf')">Manual Cambio De Cintas</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- ?Gestiones O365 -->
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSix" aria-expanded="false" aria-controls="flush-collapseSix">
+                                <span class="material-symbols-outlined m-1">alternate_email</span>
+                                Gestiones O365 
+                            </button>
+                        </h2>
+                        <div id="flush-collapseSix" class="accordion-collapse collapse" data-bs-parent="#accordionFlushExample">
+                            <div class="accordion-body">
+                                <ul>
+                                    <li><a class="link" (click)="openManual('Exportar_Correo_PST.pdf')">Exportar correo a .PST</a></li>
+                                    <li><a class="link" (click)="openManual('Compartir_Calendario_Desde_Outlook.pdf')">Compartir calendario desde Outlook</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

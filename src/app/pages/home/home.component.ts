@@ -93,4 +93,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
       }
     });
   }
+
+  public openManual(manual: string): void {
+    this.ipcService.send('openManual', manual);
+  }
 }

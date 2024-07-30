@@ -1,7 +1,7 @@
 /**
  * * Importaciones de Módulos
  */
-import { app, BrowserWindow, ipcMain, Menu, Tray, dialog } from "electron";
+import { app, BrowserWindow, ipcMain, Menu, Tray, dialog, shell } from "electron";
 import isDev from "electron-is-dev";
 import pkg from "electron-updater";
 import { execFile } from "child_process";
@@ -133,7 +133,8 @@ function createHome() {
             center: true, 
             webPreferences: { 
                 contextIsolation: false, 
-                nodeIntegration: true 
+                nodeIntegration: true,
+                webSecurity: false
             },
             icon: `${ASSETS}/favicon.png`
         });
@@ -242,6 +243,10 @@ ipcMain.on( 'installApp', () => autoUpdater.quitAndInstall() );
 //OBTENER VERSION DE APP
 ipcMain.on( 'getVersion', ( event, args ) => { event.sender.send( 'getVersion', app.getVersion() ) });
 
+//Manual ejemplo
+ipcMain.on('openManual', (event, args) => {
+    shell.openPath(`\\\\esmadvfshared\\sw\\Sccm\\Manuales\\${args}`).then(result => {});
+});
 /**
  * * Eventos de Actualizaciones Automáticas
  */
