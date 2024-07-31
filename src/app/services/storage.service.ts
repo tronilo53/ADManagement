@@ -163,10 +163,16 @@ export class StorageService {
               this.ipcService.once('getVersion', (event, args) => {
                 //Se guarda la version en el sessionStorage
                 sessionStorage.setItem('version', args);
-                //Se oculta el loading
-                this.controllerService.destroyLoading();
-                //Permite el acceso
-                resolve(true);
+                //IPC para obtener los usuarios de AD
+                this.ipcService.send('getUsers');
+                this.ipcService.once('getUsers', (event, args) => {
+                  //Se guardan los usuarios en el sessionStorage
+                  sessionStorage.setItem('users', JSON.stringify(args));
+                  //Se oculta el loading
+                  this.controllerService.destroyLoading();
+                  //Permite el acceso
+                  resolve(true);
+                });
               });
             });
           });

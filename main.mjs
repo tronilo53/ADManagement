@@ -79,42 +79,50 @@ function appInit() {
     appPreload.loadURL(URL_PRELOAD);
     //Cuando la ventana está lista para ser mostrada...
     appPreload.once( "ready-to-show", () => {
+        //Si existen Unidades organizativas o Usuarios en el store los borra
+        store.delete('ous');
+        store.delete('users');
         //Verifica si se ejecuta como ADM
         isElevated().then(elevated => {
             //Si se ejecuta como ADM...
             if(elevated) {
                 //Se ejecuta el script 'Get-ADOrganizationalUnit.ps1'
-                execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(SCRIPTS, 'Get-ADOrganizationalUnit.ps1')],(error, stdout, stderr) => {
-                    //Si existe un error...
-                    if (error || stderr) {
-                        //Si existen Ou's en store las borra
-                        if(store.get('ous', false)) store.delete('ous');
-                        //Manda por el canal 'getOusError' el error
-                        appPreload.webContents.send('getOusError');
-                        setTimeout(() => {
-                            //Cierra la ventana de Preload
+                execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(SCRIPTS, 'Get-ADOrganizationalUnit.ps1')],(errorOu, stdoutOu, stderrOu) => {
+                    //Si da un error al obtener las Unidades Organizativas...
+                    if(errorOu || stderrOu) {
+                        //Muestra una Alerta Nativa
+                        alertNative(appPreload, 'error', 'Dominio EUHSI', 'No se ha podido contactar con el dominio. Algunos datos no se han obtenido.', ['Continuar'], () => {
+                            //Cierra la Ventana AppPreload
                             appPreload.close();
-                            //Crea la ventana principal
+                            //Crea la Ventana Principal
                             createHome();
-                        }, 3000);
+                        });
+                    //Si no da ningun error al obtener las unidades Organizativas...
                     }else {
-                        //Establece o reemplaza un nuevo JSON llamado 'ous' guardando las Unidades Organizativas
-                        store.set('ous', JSON.parse(stdout));
-                        //Cierra la ventana de Preload
-                        appPreload.close();
-                        //Crea la ventana principal
-                        createHome();
+                        //Se ejecuta el script 'Get-ADUsersAll.ps1'
+                        execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(SCRIPTS, 'Get-ADUsersAll.ps1')], (errorUs, stdoutUs, stderrUs) => {
+                            //Se lee el archivo json de los usuarios
+                            fs.readFile('C:\\temp\\users.json', 'utf8', (error, data) => {
+                                //Se guarda el arreglo del json
+                                const cleanData = stripBom(data);
+                                //Se guarda el json limpio
+                                const users = JSON.parse(cleanData);
+                                //Se guardan las OU's y los usuarios en el store
+                                store.set('ous', stdoutOu);
+                                store.set('users', users);
+                                //Se elimina el archivo json temporal
+                                fs.unlink('C:\\temp\\users.json', () => {
+                                    //Cierra la Ventana AppPreload
+                                    appPreload.close();
+                                    //Crea la Ventana Principal
+                                    createHome();
+                                });
+                            });
+                        });
                     }
                 });
-            }else {
-                //Muestra una alerta nativa
-                dialog.showMessageBox(appPreload, {
-                    type: 'error',
-                    title: 'Permiso Denegado',
-                    message: 'Se necesitan privilegios para usar la App. Disculpen las molestias.',
-                    buttons: ['Cerrar']
-                }).then(() => { app.quit() });
-            }
+            //Si no se ejecuta como ADM, se muestra una alerta nativa y se cierra la Aplicación
+            }else alertNative(appPreload, 'error', 'Permiso Denegado', 'Se necesitan privilegios para usar la App. Disculpen las molestias.', ['Salir'], () => { app.quit() });
         });
     });
     //Cuando se llama a .close() la ventana Preload se cierra
@@ -136,7 +144,8 @@ function createHome() {
                 nodeIntegration: true,
                 webSecurity: false
             },
-            icon: `${ASSETS}/favicon.png`
+            icon: `${ASSETS}/favicon.png`,
+            title: `${app.name} v${app.getVersion()}`
         });
     appWin.setMenu(MENU);
     appWin.loadURL(URL_HOME);
@@ -157,6 +166,16 @@ function createHome() {
     appWin.on( "closed", () => appWin = null );
 };
 
+function alertNative(parent, type, title, message, buttons, callback) {
+    //Muestra una alerta nativa
+    dialog.showMessageBox(parent, { type, title, message, buttons }).then(() => { callback() });
+}
+
+function stripBom(content) {
+    if (content.charCodeAt(0) === 0xFEFF) return content.slice(1);
+    return content;
+}
+
 /**
  * * Preparar la App
  */
@@ -174,6 +193,8 @@ app.whenReady().then( () => {
 /**
  * * Comunicación entre procesos
  */
+//Obtiene los usuarios de AD Guardados en el store
+ipcMain.on('getUsers', (event, args) => { event.sender.send('getUsers', store.get('users', false)) });
 //Obtiene las Unidades Organizativas de AD guardadas en el store
 ipcMain.on('getOus', (event, args) => { event.sender.send('getOus', store.get('ous', false)) });
 //Obtiene las Unidades Organizativas de AD
