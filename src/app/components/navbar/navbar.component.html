@@ -29,8 +29,8 @@
             <form class="d-flex" role="search">
                 <!--!Se detectan los cambios con el Pipe 'async' si no, falla el avatar-->
                 <img class="avatar" [src]="'assets/avatars/' + (storageService.configBehavior | async)?.avatar" alt="avatar.png">
-                <input class="form-control me-2" disabled type="text" placeholder="Buscar" aria-label="Search">
-                <button class="btn btn-outline-light disabled" type="button">Buscar</button>
+                <input class="form-control me-2" type="text" placeholder="Buscar" aria-label="Search" #content>
+                <button class="btn btn-outline-light" type="button" (click)="search(content.value)">Buscar</button>
             </form>
         </div>
     </div>

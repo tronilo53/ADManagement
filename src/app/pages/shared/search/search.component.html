@@ -1,0 +1,28 @@
+<div class="search animate__animated animate__fadeIn">
+    <div class="container">
+        <div class="row mt-3">
+            <div class="col">
+                <h2>Resultados para: <span [class]="storageService.getThemeCss('text')">{{ content }}</span></h2>
+            </div>
+        </div>
+        <div class="row" *ngIf="filter.length < 1">
+            <div class="col">
+                <div [class]="storageService.getThemeCss('alert')" role="alert">No se han encontrado resultados</div>
+            </div>
+        </div>
+        <div class="row mt-3" *ngIf="filter.length > 0">
+            <div class="col">
+                <div class="list-group">
+                    <a href="#" class="list-group-item list-group-item-action" aria-current="true" *ngFor="let f of filter">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ f.Name }}</h5>
+                            <small>{{ f.EmailAddress }}</small>
+                        </div>
+                        <p class="mb-1">Some placeholder content in a paragraph.</p>
+                        <small>And some small print.</small>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

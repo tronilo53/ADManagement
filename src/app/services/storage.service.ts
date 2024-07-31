@@ -75,7 +75,7 @@ export class StorageService {
    * @param type Tipo de elemento a aplicar la clase
    * @returns Devuelve la/s clases css en tipo String
    */
-  public getThemeCss(type: string): string {
+  public getThemeCss(type: 'button' | 'nav' | 'alert' | 'badge' | 'text' | 'progress-bar' | 'swal'): string {
     //Se crea una variable vacia de tipo String
     let addClass: string = '';
     //Si el elemento recibido es un Botón Se aplica la clase correspondiente dependiendo del tema aplicado

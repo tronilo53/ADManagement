@@ -33,7 +33,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       //Si se ha instalado una actualización...
       if(args != false) this.router.navigate(['/ChangeLog']);
     });
-    console.log(JSON.parse(sessionStorage.getItem('users')));
   }
   ngAfterViewInit(): void {
     //Escucha si está comprobando actualizaciones
