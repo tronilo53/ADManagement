@@ -1,0 +1,19 @@
+<div class="user animate__animated animate__fadeIn">
+    <div class="container">
+        <div class="row mt-5">
+            <div class="col">
+                <h2>
+                    {{ user.DisplayName }} 
+                    <span style="vertical-align: middle; font-size: 2rem;" class="material-symbols-outlined text-danger" *ngIf="user.LockedOut === 'true'">lock</span>
+                    <span style="vertical-align: middle; font-size: 2rem;" class="material-symbols-outlined text-danger" *ngIf="user.Enabled === 'false'">person_off</span>
+                    <span style="vertical-align: middle; font-size: 2rem;" class="material-symbols-outlined text-success" *ngIf="user.Enabled === 'true' && user.LockedOut === 'false'">check</span>
+                </h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <app-user-card [user]="user"></app-user-card>
+            </div>
+        </div>
+    </div>
+</div>

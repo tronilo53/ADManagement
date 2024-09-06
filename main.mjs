@@ -217,6 +217,26 @@ ipcMain.on('Get-ADUser', (event, data) => {
         event.sender.send('Get-ADUser', { response: 'Success', data: stdout });
     });
 });
+//Obtiene los usuarios de AD
+ipcMain.on('Get-ADUsersAll', (event, args) => {
+    //Ejecuta el script 'Get-ADUsersAll.ps1'
+    execFile('powershell.exe',['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', path.join(SCRIPTS, 'Get-ADUsersAll.ps1')],(error, stdout, stderr) => {
+        //Lee el archivo users.json en 'C:\temp\users.json'
+        fs.readFile('C:\\temp\\users.json', 'utf8', (err, data) => {
+            //Se guarda el arreglo del json
+            const cleanData = stripBom(data);
+            //Se guarda el json limpio
+            const users = JSON.parse(cleanData);
+            //Se elimina el archivo json
+            fs.unlink('C:\\temp\\users.json', () => {
+                //Se guardan los usuarios en el store
+                store.set('users', users);
+                //Se envian los usuarios por el canal
+                event.sender.send('Get-ADUsersAll', users);
+            });
+        });
+    });
+});
 //Obtiene los grupos de un usuario de AD
 ipcMain.on('Get-ADGroup', (event, data) => {
     //Ejecuta el script 'Get-ADGroup.ps1'

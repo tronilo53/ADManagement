@@ -47,8 +47,8 @@ export class NavbarComponent implements OnInit {
     return this.currentUrl === '/Dashboard/CreateUsers' ||
            this.currentUrl === '/Dashboard/CreateOUs' ||
            this.currentUrl === '/Dashboard/CreateGroups' ||
-           this.currentUrl === '/Dashboard/ManageUsers' ||
-           this.currentUrl === '/Dashboard/ManageDevices';
+           this.currentUrl === '/Dashboard/ManagementUsers' ||
+           this.currentUrl === '/Dashboard/ManagementDevices';
   }
 
   /**

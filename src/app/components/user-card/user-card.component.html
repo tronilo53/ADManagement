@@ -1,0 +1,15 @@
+<div class="card">
+    <div class="card-header text-center">{{ user.UserPrincipalName }}</div>
+    <div class="card-body">
+        <h5 class="card-title text-center" *ngIf="user.Title != null">{{ user.Title }}</h5>
+        <p class="card-text" *ngIf="user.Company != null"><strong>Compañia: </strong> {{ user.Company }}</p>
+        <p class="card-text" *ngIf="user.Department != null"><strong>Departamento: </strong> {{ user.Department }}</p>
+        <p class="card-text" *ngIf="user.Office != null"><strong>Oficina: </strong> {{ user.Office }}</p>
+        <h5 class="card-title text-center {{ storageService.getThemeCss('text') }}" *ngIf="user.DistinguishedName.indexOf('ADM Accounts') > -1 || user.DistinguishedName.indexOf('Local Admins') > -1">Cuenta Administrador</h5>
+        <div class="mb 3 text-center">
+            <button type="button" [class]="storageService.getThemeCss('button')" *ngIf="user.LockedOut === 'true'">Desbloquear Cuenta</button>
+            <button type="button" [class]="storageService.getThemeCss('button')" *ngIf="user.Enabled === 'false'">Habilitar Usuario</button>
+        </div>
+    </div>
+    <div class="card-footer text-body-secondary" style="font-size: 0.8rem;">{{ user.DistinguishedName }}</div>
+</div>

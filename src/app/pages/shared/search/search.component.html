@@ -12,14 +12,21 @@
         </div>
         <div class="row mt-3" *ngIf="filter.length > 0">
             <div class="col">
-                <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action" aria-current="true" *ngFor="let f of filter">
+                <div class="list-group mb-5">
+                    <a class="list-group-item list-group-item-action" aria-current="true" *ngFor="let f of filter" [routerLink]="['/Dashboard/User']" [queryParams]="{ Company: f.Company, Department: f.Department, DisplayName: f.DisplayName, DistinguishedName: f.DistinguishedName, Enabled: f.Enabled, LockedOut: f.LockedOut, Office: f.Office, SamAccountName: f.SamAccountName, Title: f.Title, UserPrincipalName: f.UserPrincipalName}">
                         <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">{{ f.Name }}</h5>
-                            <small>{{ f.EmailAddress }}</small>
+                            <h5 class="mb-1" [ngClass]="{'text-danger': !f.Enabled}">
+                                <span *ngIf="f.DisplayName != null">{{ f.DisplayName }}</span>
+                                <span *ngIf="f.DisplayName == null"><strong>Sin Datos</strong></span>
+                                <span style="vertical-align: middle; font-size: 1.1rem;" class="material-symbols-outlined text-danger" *ngIf="f.LockedOut">lock</span>
+                                <span style="vertical-align: middle; font-size: 1.1rem;" class="material-symbols-outlined text-danger" *ngIf="!f.Enabled">person_off</span>
+                                <span style="vertical-align: middle; font-size: 1.2rem;" class="material-symbols-outlined text-success" *ngIf="f.Enabled && !f.LockedOut">check</span>
+                            </h5>
+                            <small>
+                                <span *ngIf="f.UserPrincipalName != null">{{ f.UserPrincipalName }}</span>
+                                <span *ngIf="f.UserPrincipalName == null"><strong>Sin Datos</strong></span>
+                            </small>
                         </div>
-                        <p class="mb-1">Some placeholder content in a paragraph.</p>
-                        <small>And some small print.</small>
                     </a>
                 </div>
             </div>

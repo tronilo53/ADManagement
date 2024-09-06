@@ -19,6 +19,7 @@ import { InitComponent } from './pages/init/init.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { ChangeLogComponent } from './pages/change-log/change-log.component';
 import { SearchComponent } from './pages/shared/search/search.component';
+import { UserComponent } from './pages/shared/user/user.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -30,7 +31,8 @@ import { SearchComponent } from './pages/shared/search/search.component';
     InitComponent,
     ProfileComponent,
     ChangeLogComponent,
-    SearchComponent
+    SearchComponent,
+    UserComponent
   ],
   imports: [
     BrowserModule,

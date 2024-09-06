@@ -18,7 +18,7 @@
                         <li><a class="dropdown-item disabled">Crear Unidades Organizativas</a></li>
                         <li><a class="dropdown-item disabled">Crear Grupos</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item disabled">Gestionar Usuarios</a></li>
+                        <li><a class="dropdown-item" [routerLink]="['/Dashboard/ManagementUsers']" routerLinkActive="active">Gestionar Usuarios</a></li>
                         <li><a class="dropdown-item disabled">Gestionar Equipos</a></li>
                     </ul>
                 </li>
@@ -26,10 +26,10 @@
                     <a class="nav-link" [routerLink]="['/Dashboard/Profile']" routerLinkActive="active" >Perfil</a>
                 </li>
             </ul>
-            <form class="d-flex" role="search">
+            <form (ngSubmit)="search(content.value)" #searchForm="ngForm" class="d-flex" role="search">
                 <!--!Se detectan los cambios con el Pipe 'async' si no, falla el avatar-->
                 <img class="avatar" [src]="'assets/avatars/' + (storageService.configBehavior | async)?.avatar" alt="avatar.png">
-                <input class="form-control me-2" type="text" placeholder="Buscar" aria-label="Search" #content>
+                <input class="form-control me-2" type="text" placeholder="Buscar Usuarios..." name="searchInput" ngModel aria-label="Search" #content>
                 <button class="btn btn-outline-light" type="button" (click)="search(content.value)">Buscar</button>
             </form>
         </div>

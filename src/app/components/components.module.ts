@@ -4,6 +4,8 @@ import { NavbarComponent } from './navbar/navbar.component';
 import { RouterModule } from '@angular/router';
 import { NavbarThemeComponent } from './navbar-theme/navbar-theme.component';
 import { MaintenanceComponent } from './maintenance/maintenance.component';
+import { FormsModule } from '@angular/forms';
+import { UserCardComponent } from './user-card/user-card.component';
 
 
 
@@ -11,16 +13,19 @@ import { MaintenanceComponent } from './maintenance/maintenance.component';
   declarations: [
     NavbarComponent,
     NavbarThemeComponent,
-    MaintenanceComponent
+    MaintenanceComponent,
+    UserCardComponent
   ],
   imports: [
     CommonModule,
-    RouterModule
+    RouterModule,
+    FormsModule
   ],
   exports: [
     NavbarComponent,
     NavbarThemeComponent,
-    MaintenanceComponent
+    MaintenanceComponent,
+    UserCardComponent
   ]
 })
 export class ComponentsModule { }

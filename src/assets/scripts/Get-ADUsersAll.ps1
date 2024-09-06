@@ -2,11 +2,11 @@
 [Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8
 
 # Define las propiedades que deseas obtener
-$properties = @("SamAccountName", "Name", "GivenName", "Surname", "EmailAddress", "Title", "Department")
+$properties = @("SamAccountName", "DisplayName", "Title", "Department", "UserPrincipalName", "DistinguishedName", "Enabled", "LockedOut", "Office", "Company")
 
 
 # Obtiene todos los usuarios del Active Directory
-$users = Get-ADUser -Filter * -Property $properties -SearchBase "OU=ES, DC=eu, DC=hsi, DC=local"
+$users = Get-ADUser -Filter * -Property $properties -SearchBase "DC=eu, DC=hsi, DC=local"
 
 # Selecciona solo las propiedades deseadas
 $selectedUsers = $users | Select-Object $properties
